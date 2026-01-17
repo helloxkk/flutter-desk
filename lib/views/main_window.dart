@@ -175,7 +175,7 @@ class _Header extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Flutter Manager',
+                  'FlutterDesk',
                   style: TextStyle(
                     fontSize: MacOSTheme.fontSizeHeadline,
                     fontWeight: MacOSTheme.weightSemibold,
@@ -184,7 +184,7 @@ class _Header extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'Project & Device Management',
+                  'Flutter Project Management',
                   style: TextStyle(
                     fontSize: MacOSTheme.fontSizeCaption2,
                     fontWeight: MacOSTheme.weightRegular,

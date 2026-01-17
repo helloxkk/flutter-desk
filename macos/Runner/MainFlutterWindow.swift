@@ -11,9 +11,9 @@ class MainFlutterWindow: NSWindow {
     RegisterGeneratedPlugins(registry: flutterViewController)
 
     // Configure window for unified titlebar + header style
-    self.title = ""
+    self.title = "FlutterDesk"
     self.titlebarAppearsTransparent = true
-    self.titleVisibility = .hidden
+    self.titleVisibility = .visible
     self.isMovableByWindowBackground = true
 
     // Ensure standard buttons are visible
