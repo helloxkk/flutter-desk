@@ -56,7 +56,7 @@ class _ConsoleContentAreaState extends State<ConsoleContentArea> {
         }
 
         return Container(
-          color: const Color(0xFF1C1C1E), // Always dark terminal background
+          color: colors.cardBackground,
           child: logs.isEmpty
               ? _EmptyState(
                   hasFilter: viewModel.logFilter != LogFilter.all ||
@@ -96,6 +96,8 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = MacOSTheme.of(context);
+
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -103,13 +105,13 @@ class _EmptyState extends StatelessWidget {
           Icon(
             hasFilter ? Icons.search_off : Icons.terminal_outlined,
             size: 48,
-            color: MacOSTheme.systemGray3,
+            color: colors.textSecondary,
           ),
           const SizedBox(height: 16),
           Text(
             hasFilter ? '没有匹配的日志' : '暂无日志输出',
-            style: const TextStyle(
-              color: MacOSTheme.systemGray3,
+            style: TextStyle(
+              color: colors.textSecondary,
               fontSize: MacOSTheme.fontSizeFootnote,
               fontFamily: 'Menlo',
             ),
@@ -132,15 +134,22 @@ class _LogContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SelectionArea(
-      child: ListView.builder(
-        controller: scrollController,
-        itemCount: logs.length,
-        padding: const EdgeInsets.all(16),
-        itemBuilder: (context, index) {
-          final log = logs[index];
-          return _LogLine(log: log);
-        },
+    final colors = MacOSTheme.of(context);
+
+    return Container(
+      color: colors.isDark
+          ? const Color(0xFF1C1C1E)  // Dark mode: dark background
+          : const Color(0xFFF5F5F7),  // Light mode: light background
+      child: SelectionArea(
+        child: ListView.builder(
+          controller: scrollController,
+          itemCount: logs.length,
+          padding: const EdgeInsets.all(16),
+          itemBuilder: (context, index) {
+            final log = logs[index];
+            return _LogLine(log: log);
+          },
+        ),
       ),
     );
   }
@@ -154,39 +163,44 @@ class _LogLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = MacOSTheme.of(context);
+
     return Text(
       log,
       style: TextStyle(
         fontFamily: 'Menlo',
         fontSize: MacOSTheme.fontSizeCaption2,
         height: 1.5,
-        color: _getLogColor(log),
+        color: _getLogColor(log, colors),
       ),
     );
   }
 
-  Color _getLogColor(String log) {
-    // Terminal-style syntax highlighting
+  Color _getLogColor(String log, macOSColors colors) {
+    final isDark = colors.isDark;
+
+    // Terminal-style syntax highlighting with theme awareness
     if (log.contains('[ERROR]') || log.contains('Error:') || log.contains('error:')) {
       return MacOSTheme.errorRed;
     } else if (log.contains('[WARNING]') || log.contains('Warning:') || log.contains('warning:')) {
       return MacOSTheme.warningOrange;
     } else if (log.contains('[INFO]') || log.contains('info:')) {
-      return const Color(0xFF60A5FA);
+      return isDark ? const Color(0xFF60A5FA) : const Color(0xFF2563EB);
     } else if (log.contains('Hot reload') || log.contains('Hot restart')) {
-      return const Color(0xFF4ADE80);
+      return isDark ? const Color(0xFF4ADE80) : const Color(0xFF16A34A);
     } else if (log.contains('Flutter run') || log.contains('Running')) {
-      return MacOSTheme.systemBlue;
+      return isDark ? const Color(0xFF60A5FA) : const Color(0xFF2563EB);
     } else if (log.contains('Successfully')) {
-      return const Color(0xFF4ADE80);
+      return isDark ? const Color(0xFF4ADE80) : const Color(0xFF16A34A);
     } else if (log.contains('Exception') || log.contains('failed')) {
       return MacOSTheme.errorRed;
     } else if (log.contains('Note:')) {
       return const Color(0xFFFBBF24);
     } else if (log.contains('•')) {
-      return MacOSTheme.systemGray3;
+      return isDark ? MacOSTheme.systemGray3 : MacOSTheme.systemGray;
     }
-    return const Color(0xFFD1D5DB);
+    // Default log color - lighter in dark mode, darker in light mode
+    return isDark ? const Color(0xFFD1D5DB) : const Color(0xFF374151);
   }
 }
 
@@ -202,13 +216,15 @@ class _AutoScrollToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = MacOSTheme.of(context);
+
     return Container(
       padding: const EdgeInsets.all(8),
-      decoration: const BoxDecoration(
-        color: Color(0xFF2C2C2E),
+      decoration: BoxDecoration(
+        color: colors.secondaryBackground,
         border: Border(
           top: BorderSide(
-            color: Color(0xFF38383A),
+            color: colors.border,
             width: 0.5,
           ),
         ),
@@ -219,14 +235,14 @@ class _AutoScrollToggle extends StatelessWidget {
           Icon(
             autoScroll ? Icons.arrow_downward : Icons.arrow_downward_outlined,
             size: 14,
-            color: autoScroll ? MacOSTheme.systemBlue : MacOSTheme.systemGray3,
+            color: autoScroll ? MacOSTheme.systemBlue : colors.textSecondary,
           ),
           const SizedBox(width: 4),
           Text(
             autoScroll ? '自动滚动：开' : '自动滚动：关',
             style: TextStyle(
               fontSize: MacOSTheme.fontSizeCaption2,
-              color: autoScroll ? MacOSTheme.systemBlue : MacOSTheme.systemGray3,
+              color: autoScroll ? MacOSTheme.systemBlue : colors.textSecondary,
             ),
           ),
           const SizedBox(width: 8),
@@ -237,14 +253,14 @@ class _AutoScrollToggle extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: MacOSTheme.systemGray3.withOpacity(0.1),
+                  color: colors.hoverColor,
                   borderRadius: BorderRadius.circular(3),
                 ),
                 child: Text(
                   autoScroll ? '关闭' : '开启',
                   style: TextStyle(
                     fontSize: MacOSTheme.fontSizeCaption2,
-                    color: MacOSTheme.systemGray3,
+                    color: colors.textSecondary,
                   ),
                 ),
               ),
