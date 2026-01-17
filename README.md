@@ -68,7 +68,7 @@
 
 ```bash
 # 克隆仓库
-git clone https://github.com/yourusername/flutter-desk.git
+git clone https://github.com/helloxkk/flutter-desk.git
 cd flutter-desk
 
 # 获取依赖
@@ -83,7 +83,7 @@ flutter build macos --release
 
 ### 下载预编译版本
 
-前往 [Releases](https://github.com/yourusername/flutter-desk/releases) 页面下载最新的 `.app` 文件。
+前往 [Releases](https://github.com/helloxkk/flutter-desk/releases) 页面下载最新的 `.app` 文件。
 
 ## 🚀 使用指南
 
@@ -187,8 +187,8 @@ flutter pub run build_runner build --delete-conflicting-outputs
 
 ## 📮 联系方式
 
-- 作者 - [@yourusername](https://github.com/yourusername)
-- 项目链接 - [https://github.com/yourusername/flutter-desk](https://github.com/yourusername/flutter-desk)
+- 作者 - [@helloxkk](https://github.com/helloxkk)
+- 项目链接 - [https://github.com/helloxkk/flutter-desk](https://github.com/helloxkk/flutter-desk)
 
 ---
 
