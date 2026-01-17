@@ -24,10 +24,10 @@ class CodegenPanel extends StatelessWidget {
             // 标题行
             Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.code_rounded,
                   size: 18,
-                  color: MacOSTheme.textSecondary,
+                  color: MacOSTheme.of(context).textSecondary,
                 ),
                 const SizedBox(width: MacOSTheme.paddingS),
                 Text(
@@ -35,7 +35,7 @@ class CodegenPanel extends StatelessWidget {
                   style: TextStyle(
                     fontSize: MacOSTheme.fontSizeHeadline,
                     fontWeight: MacOSTheme.weightSemibold,
-                    color: MacOSTheme.textPrimary,
+                    color: MacOSTheme.of(context).textPrimary,
                   ),
                 ),
                 const Spacer(),
@@ -129,19 +129,17 @@ class _CodegenActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = MacOSTheme.of(context);
 
     return Container(
       padding: const EdgeInsets.all(MacOSTheme.paddingM),
       decoration: BoxDecoration(
-        color: isDark
-            ? const Color(0xFF1C1C1E)
-            : MacOSTheme.systemGray6,
+        color: colors.secondaryBackground,
         borderRadius: const BorderRadius.all(
           Radius.circular(MacOSTheme.radiusMedium),
         ),
         border: Border.all(
-          color: MacOSTheme.borderMedium,
+          color: colors.border,
           width: 0.5,
         ),
       ),
@@ -153,7 +151,7 @@ class _CodegenActions extends StatelessWidget {
             style: TextStyle(
               fontSize: MacOSTheme.fontSizeCaption1,
               fontWeight: MacOSTheme.weightMedium,
-              color: MacOSTheme.textSecondary,
+              color: colors.textSecondary,
             ),
           ),
           const SizedBox(height: MacOSTheme.paddingM),
@@ -200,14 +198,12 @@ class _CodegenActions extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(MacOSTheme.paddingM),
             decoration: BoxDecoration(
-              color: isDark
-                  ? const Color(0xFF2C2C2E)
-                  : Colors.white,
+              color: colors.cardBackground,
               borderRadius: const BorderRadius.all(
                 Radius.circular(MacOSTheme.radiusSmall),
               ),
               border: Border.all(
-                color: MacOSTheme.borderLight,
+                color: colors.borderLight,
                 width: 0.5,
               ),
             ),
@@ -268,7 +264,7 @@ class _CodegenActionButtonState extends State<_CodegenActionButton> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = MacOSTheme.of(context);
     final opacity = widget.isEnabled ? 1.0 : 0.4;
 
     Color bgColor;
@@ -278,10 +274,8 @@ class _CodegenActionButtonState extends State<_CodegenActionButton> {
       bgColor = MacOSTheme.systemBlue;
       fgColor = Colors.white;
     } else {
-      bgColor = isDark
-          ? const Color(0xFF2C2C2E)
-          : Colors.white;
-      fgColor = MacOSTheme.textPrimary;
+      bgColor = colors.buttonBackground;
+      fgColor = colors.textPrimary;
     }
 
     return MouseRegion(
@@ -306,9 +300,7 @@ class _CodegenActionButtonState extends State<_CodegenActionButton> {
               color: _isPressed
                   ? bgColor.withOpacity(0.8)
                   : (_isHovering && !widget.isPrimary
-                      ? (isDark
-                          ? Colors.white.withOpacity(0.1)
-                          : Colors.black.withOpacity(0.05))
+                      ? colors.hoverColor
                       : bgColor),
               borderRadius: const BorderRadius.all(
                 Radius.circular(MacOSTheme.radiusSmall),
@@ -316,7 +308,7 @@ class _CodegenActionButtonState extends State<_CodegenActionButton> {
               border: Border.all(
                 color: widget.isPrimary
                     ? Colors.transparent
-                    : MacOSTheme.borderMedium,
+                    : colors.border,
                 width: 0.5,
               ),
             ),
@@ -344,7 +336,7 @@ class _CodegenActionButtonState extends State<_CodegenActionButton> {
                   widget.description,
                   style: TextStyle(
                     fontSize: MacOSTheme.fontSizeCaption2,
-                    color: MacOSTheme.textSecondary.withOpacity(opacity * 0.8),
+                    color: colors.textSecondary.withOpacity(opacity * 0.8),
                   ),
                 ),
               ],

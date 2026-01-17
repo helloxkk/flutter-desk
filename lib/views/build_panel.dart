@@ -24,10 +24,10 @@ class BuildPanel extends StatelessWidget {
             // 标题行
             Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.build_rounded,
                   size: 18,
-                  color: MacOSTheme.textSecondary,
+                  color: MacOSTheme.of(context).textSecondary,
                 ),
                 const SizedBox(width: MacOSTheme.paddingS),
                 Text(
@@ -35,7 +35,7 @@ class BuildPanel extends StatelessWidget {
                   style: TextStyle(
                     fontSize: MacOSTheme.fontSizeHeadline,
                     fontWeight: MacOSTheme.weightSemibold,
-                    color: MacOSTheme.textPrimary,
+                    color: MacOSTheme.of(context).textPrimary,
                   ),
                 ),
                 const Spacer(),
@@ -127,19 +127,17 @@ class _BuildTypeSelectorState extends State<_BuildTypeSelector> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = MacOSTheme.of(context);
 
     return Container(
       padding: const EdgeInsets.all(MacOSTheme.paddingM),
       decoration: BoxDecoration(
-        color: isDark
-            ? const Color(0xFF1C1C1E)
-            : MacOSTheme.systemGray6,
+        color: colors.secondaryBackground,
         borderRadius: const BorderRadius.all(
           Radius.circular(MacOSTheme.radiusMedium),
         ),
         border: Border.all(
-          color: MacOSTheme.borderMedium,
+          color: colors.border,
           width: 0.5,
         ),
       ),
@@ -152,7 +150,7 @@ class _BuildTypeSelectorState extends State<_BuildTypeSelector> {
             style: TextStyle(
               fontSize: MacOSTheme.fontSizeCaption1,
               fontWeight: MacOSTheme.weightMedium,
-              color: MacOSTheme.textSecondary,
+              color: MacOSTheme.of(context).textSecondary,
             ),
           ),
           const SizedBox(height: MacOSTheme.paddingS),
@@ -184,7 +182,7 @@ class _BuildTypeSelectorState extends State<_BuildTypeSelector> {
                 style: TextStyle(
                   fontSize: MacOSTheme.fontSizeCaption1,
                   fontWeight: MacOSTheme.weightMedium,
-                  color: MacOSTheme.textSecondary,
+                  color: MacOSTheme.of(context).textSecondary,
                 ),
               ),
               const SizedBox(width: MacOSTheme.paddingM),
@@ -279,7 +277,7 @@ class _BuildTypeChipState extends State<_BuildTypeChip> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = MacOSTheme.of(context);
     final opacity = widget.isEnabled ? 1.0 : 0.4;
 
     Color bgColor;
@@ -289,10 +287,8 @@ class _BuildTypeChipState extends State<_BuildTypeChip> {
       bgColor = MacOSTheme.systemBlue;
       fgColor = Colors.white;
     } else {
-      bgColor = isDark
-          ? const Color(0xFF2C2C2E)
-          : Colors.white;
-      fgColor = MacOSTheme.textPrimary;
+      bgColor = colors.buttonBackground;
+      fgColor = colors.textPrimary;
     }
 
     return MouseRegion(
@@ -308,9 +304,7 @@ class _BuildTypeChipState extends State<_BuildTypeChip> {
           ),
           decoration: BoxDecoration(
             color: _isHovering && widget.isEnabled && !widget.isSelected
-                ? (isDark
-                    ? Colors.white.withOpacity(0.1)
-                    : Colors.black.withOpacity(0.05))
+                ? colors.hoverColor
                 : bgColor,
             borderRadius: const BorderRadius.all(
               Radius.circular(MacOSTheme.radiusSmall),
@@ -318,7 +312,7 @@ class _BuildTypeChipState extends State<_BuildTypeChip> {
             border: Border.all(
               color: widget.isSelected
                   ? MacOSTheme.systemBlue
-                  : MacOSTheme.borderMedium,
+                  : colors.border,
               width: 0.5,
             ),
           ),
@@ -409,7 +403,7 @@ class _ModeToggleState extends State<_ModeToggle> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = MacOSTheme.of(context);
     final opacity = widget.isEnabled ? 1.0 : 0.4;
 
     Color bgColor;
@@ -419,10 +413,8 @@ class _ModeToggleState extends State<_ModeToggle> {
       bgColor = MacOSTheme.systemBlue;
       fgColor = Colors.white;
     } else {
-      bgColor = isDark
-          ? const Color(0xFF2C2C2E)
-          : Colors.white;
-      fgColor = MacOSTheme.textPrimary;
+      bgColor = colors.buttonBackground;
+      fgColor = colors.textPrimary;
     }
 
     return MouseRegion(
@@ -438,9 +430,7 @@ class _ModeToggleState extends State<_ModeToggle> {
           ),
           decoration: BoxDecoration(
             color: _isHovering && widget.isEnabled && !widget.isSelected
-                ? (isDark
-                    ? Colors.white.withOpacity(0.1)
-                    : Colors.black.withOpacity(0.05))
+                ? colors.hoverColor
                 : bgColor,
             borderRadius: const BorderRadius.all(
               Radius.circular(MacOSTheme.radiusSmall),
@@ -448,7 +438,7 @@ class _ModeToggleState extends State<_ModeToggle> {
             border: Border.all(
               color: widget.isSelected
                   ? MacOSTheme.systemBlue
-                  : MacOSTheme.borderMedium,
+                  : colors.border,
               width: 0.5,
             ),
           ),

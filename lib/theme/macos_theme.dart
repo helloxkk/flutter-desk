@@ -29,14 +29,19 @@ class MacOSTheme {
   static const Color cardBackground = Color(0xFFFFFFFF);
   static const Color secondaryBackground = Color(0xFFF5F5F7);
 
-  /// Text colors
+  /// Text colors (light mode)
   static const Color textPrimary = Color(0xFF1D1D1F);
   static const Color textSecondary = Color(0xFF86868B);
   static const Color textTertiary = Color(0xFFAEAEB2);
 
+  /// Text colors (dark mode)
+  static const Color textPrimaryDark = Color(0xFFFFFFFF);
+  static const Color textSecondaryDark = Color(0xFFAEAEB2);
+
   /// Border colors
   static const Color borderLight = Color(0xFFE5E5EA);
   static const Color borderMedium = Color(0xFFD1D1D6);
+  static const Color borderDark = Color(0xFF38383A);
 
   /// Status colors
   static const Color successGreen = Color(0xFF34C759);
@@ -116,6 +121,14 @@ class MacOSTheme {
   static const double paddingL = 16.0;
   static const double paddingXL = 20.0;
   static const double paddingXXL = 24.0;
+
+  // ============== Helper Methods ==============
+
+  /// Get colors based on current theme brightness
+  static macOSColors of(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return macOSColors(isDark: isDark);
+  }
 
   // ============== Light Theme Data ==============
 
@@ -436,6 +449,96 @@ class MacOSTheme {
         margin: EdgeInsets.zero,
       ),
 
+      // Input decoration theme
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: const Color(0xFF1C1C1E),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: paddingM,
+          vertical: paddingS,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(radiusSmall),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(radiusSmall),
+          borderSide: const BorderSide(
+            color: Color(0xFF38383A),
+            width: 0.5,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(radiusSmall),
+          borderSide: const BorderSide(
+            color: Color(0xFF0A84FF),
+            width: 1.5,
+          ),
+        ),
+        hintStyle: const TextStyle(
+          color: systemGray2,
+          fontSize: fontSizeBody,
+        ),
+      ),
+
+      // Button theme
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF0A84FF),
+          foregroundColor: Colors.white,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(
+            horizontal: paddingL,
+            vertical: paddingM,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(radiusSmall),
+          ),
+          textStyle: const TextStyle(
+            fontSize: fontSizeBody,
+            fontWeight: weightMedium,
+          ),
+        ),
+      ),
+
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: const Color(0xFF0A84FF),
+          padding: const EdgeInsets.symmetric(
+            horizontal: paddingM,
+            vertical: paddingS,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(radiusSmall),
+          ),
+          textStyle: const TextStyle(
+            fontSize: fontSizeBody,
+            fontWeight: weightMedium,
+          ),
+        ),
+      ),
+
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: const Color(0xFF0A84FF),
+          side: const BorderSide(
+            color: Color(0xFF0A84FF),
+            width: 0.5,
+          ),
+          padding: const EdgeInsets.symmetric(
+            horizontal: paddingL,
+            vertical: paddingM,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(radiusSmall),
+          ),
+          textStyle: const TextStyle(
+            fontSize: fontSizeBody,
+            fontWeight: weightMedium,
+          ),
+        ),
+      ),
+
       // Icon theme
       iconTheme: const IconThemeData(
         color: systemGray2,
@@ -525,6 +628,74 @@ class MacOSTheme {
           color: systemGray2,
         ),
       ),
+
+      // Popup menu theme
+      popupMenuTheme: PopupMenuThemeData(
+        color: const Color(0xFF1C1C1E),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(radiusMedium),
+          side: const BorderSide(
+            color: Color(0xFF38383A),
+            width: 0.5,
+          ),
+        ),
+        elevation: 4,
+        shadowColor: Colors.black.withOpacity(0.3),
+      ),
+
+      // Divider theme
+      dividerTheme: const DividerThemeData(
+        color: Color(0xFF38383A),
+        thickness: 0.5,
+        space: paddingM,
+      ),
+
+      // Snack bar theme
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: const Color(0xFF1C1C1E),
+        contentTextStyle: const TextStyle(
+          color: Color(0xFFFFFFFF),
+          fontSize: fontSizeBody,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(radiusMedium),
+        ),
+        elevation: 8,
+      ),
     );
   }
+}
+
+/// macOS Colors that automatically adapt to light/dark mode
+class macOSColors {
+  final bool isDark;
+
+  const macOSColors({required this.isDark});
+
+  // Text colors
+  Color get textPrimary => isDark ? MacOSTheme.textPrimaryDark : MacOSTheme.textPrimary;
+  Color get textSecondary => isDark ? MacOSTheme.textSecondaryDark : MacOSTheme.textSecondary;
+  Color get textTertiary => MacOSTheme.textTertiary;
+
+  // Background colors
+  Color get cardBackground => isDark ? const Color(0xFF1C1C1E) : MacOSTheme.cardBackground;
+  Color get secondaryBackground => isDark ? const Color(0xFF2C2C2E) : MacOSTheme.secondaryBackground;
+  Color get inputBackground => isDark ? const Color(0xFF1C1C1E) : MacOSTheme.systemGray6;
+
+  // Border colors
+  Color get border => isDark ? MacOSTheme.borderDark : MacOSTheme.borderMedium;
+  Color get borderLight => MacOSTheme.borderLight;
+  Color get borderDark => MacOSTheme.borderDark;
+
+  // Button backgrounds
+  Color get buttonBackground => isDark ? const Color(0xFF2C2C2E) : Colors.white;
+
+  // Hover colors
+  Color get hoverColor => isDark
+      ? Colors.white.withOpacity(0.1)
+      : Colors.black.withOpacity(0.05);
+
+  // Icon colors
+  Color get iconColor => MacOSTheme.systemGray2;
 }

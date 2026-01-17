@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_desk/theme/macos_theme.dart';
 import 'package:flutter_desk/views/main_window.dart';
 import 'package:flutter_desk/services/tray_service.dart';
+import 'package:flutter_desk/viewmodels/theme_viewmodel.dart';
 import 'package:flutter_desk/viewmodels/project_viewmodel.dart';
 import 'package:flutter_desk/viewmodels/device_viewmodel.dart';
 import 'package:flutter_desk/viewmodels/command_viewmodel.dart';
@@ -35,6 +36,7 @@ class _FlutterManagerAppState extends State<FlutterManagerApp> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => ThemeViewModel()..initialize()),
         ChangeNotifierProvider(create: (_) => ProjectViewModel()..initialize()),
         ChangeNotifierProvider(create: (_) => DeviceViewModel()..initialize()),
         ChangeNotifierProvider(create: (_) => CommandViewModel()..initialize()),
@@ -116,18 +118,22 @@ class _TrayAwareAppState extends State<_TrayAwareApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Manager',
-      debugShowCheckedModeBanner: false,
+    return Consumer<ThemeViewModel>(
+      builder: (context, themeVM, child) {
+        return MaterialApp(
+          title: 'Flutter Manager',
+          debugShowCheckedModeBanner: false,
 
-      // Use macOS theme
-      theme: MacOSTheme.lightTheme,
-      darkTheme: MacOSTheme.darkTheme,
+          // Use macOS theme
+          theme: MacOSTheme.lightTheme,
+          darkTheme: MacOSTheme.darkTheme,
 
-      // Follow system theme mode
-      themeMode: ThemeMode.system,
+          // Use theme from ThemeViewModel
+          themeMode: themeVM.themeMode,
 
-      home: const MainWindow(),
+          home: const MainWindow(),
+        );
+      },
     );
   }
 }
