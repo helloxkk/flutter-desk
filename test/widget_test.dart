@@ -7,9 +7,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:links2_flutter_manager/viewmodels/project_viewmodel.dart';
-import 'package:links2_flutter_manager/viewmodels/device_viewmodel.dart';
-import 'package:links2_flutter_manager/viewmodels/command_viewmodel.dart';
+import 'package:flutter_desk/viewmodels/project_viewmodel.dart';
+import 'package:flutter_desk/viewmodels/device_viewmodel.dart';
+import 'package:flutter_desk/viewmodels/command_viewmodel.dart';
 import 'package:provider/provider.dart';
 
 void main() {
