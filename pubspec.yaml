@@ -1,0 +1,45 @@
+name: flutter_desk
+description: "FlutterDesk - Flutter project management tool for macOS"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.6.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # UI Icons
+  cupertino_icons: ^1.0.8
+  flutter_svg: ^2.0.10+1
+
+  # State Management
+  provider: ^6.1.2
+
+  # Storage
+  shared_preferences: ^2.3.3
+  path_provider: ^2.1.5
+
+  # Process & Utilities
+  process_run: ^1.0.0+1
+
+  # JSON Serialization
+  json_annotation: ^4.9.0
+
+  # macOS specific
+  window_manager: ^0.4.3
+  tray_manager: ^0.2.3
+  file_selector: ^1.0.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+  # JSON code generation
+  build_runner: ^2.4.13
+  json_serializable: ^6.8.0
+
+flutter:
+  uses-material-design: true
