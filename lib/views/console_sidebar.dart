@@ -18,39 +18,34 @@ class ConsoleSidebar extends StatelessWidget {
     final colors = MacOSTheme.of(context);
     final isDark = colors.isDark;
 
-    return SizedBox(
+    return Container(
+      margin: const EdgeInsets.all(12),
       width: 200,
-      child: Container(
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF5F5F7),
-          border: Border(
-            right: BorderSide(
-              color: colors.border,
-              width: 0.5,
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
+        borderRadius: const BorderRadius.all(Radius.circular(12)),
+        boxShadow: MacOSTheme.shadowCard,
+      ),
+      child: const Column(
+        children: [
+          // Projects section
+          Expanded(
+            child: _SidebarSection(
+              title: '项目',
+              child: _ProjectsSection(),
             ),
           ),
-        ),
-        child: const Column(
-          children: [
-            // Projects section
-            Expanded(
-              child: _SidebarSection(
-                title: '项目',
-                child: _ProjectsSection(),
-              ),
-            ),
 
-            Divider(height: 1, thickness: 0.5),
+          Divider(height: 1, thickness: 0.5),
 
-            // Devices section
-            Expanded(
-              child: _SidebarSection(
-                title: '设备',
-                child: _DevicesSection(),
-              ),
+          // Devices section
+          Expanded(
+            child: _SidebarSection(
+              title: '设备',
+              child: _DevicesSection(),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

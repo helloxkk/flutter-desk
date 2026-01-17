@@ -45,22 +45,22 @@ class MainFlutterWindow: NSWindow {
       return
     }
 
-    // Calculate button positions
-    // Card position in Flutter: left=8, top=8, width=168, height=28
-    let cardLeft: CGFloat = 8
-    let cardTop: CGFloat = 8
-    let cardHeight: CGFloat = 28
-    let buttonHeight = closeButton.frame.height
+    // Position traffic lights to appear inside the sidebar card
+    // X: 24px from left edge
+    // Y: Fixed position from top (will be adjusted dynamically on window resize)
     let buttonSpacing: CGFloat = 52
+    let buttonX: CGFloat = 24
 
-    // Calculate Y position to center buttons in card
-    let buttonY = cardTop + (cardHeight - buttonHeight) / 2
+    // Position from top, convert to bottom-origin coordinate system
+    // For a 500px window, we want button at Y=476 (24px from top)
+    // Formula: windowHeight - desiredTopPosition
+    let desiredTopPosition: CGFloat = 24
+    let buttonY: CGFloat = self.frame.height - desiredTopPosition
 
-    // Position buttons using setFrame
-    closeButton.setFrameOrigin(NSPoint(x: cardLeft + 12, y: buttonY))
-    miniaturizeButton.setFrameOrigin(NSPoint(x: cardLeft + 12 + buttonSpacing, y: buttonY))
-    zoomButton.setFrameOrigin(NSPoint(x: cardLeft + 12 + buttonSpacing * 2, y: buttonY))
+    closeButton.setFrameOrigin(NSPoint(x: buttonX, y: buttonY))
+    miniaturizeButton.setFrameOrigin(NSPoint(x: buttonX + buttonSpacing, y: buttonY))
+    zoomButton.setFrameOrigin(NSPoint(x: buttonX + buttonSpacing * 2, y: buttonY))
 
-    print("Traffic lights positioned at: close=\(closeButton.frame.origin), mini=\(miniaturizeButton.frame.origin), zoom=\(zoomButton.frame.origin)")
+    print("Traffic lights positioned: x=\(buttonX), y=\(buttonY), window height=\(self.frame.height)")
   }
 }
