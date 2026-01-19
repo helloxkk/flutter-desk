@@ -7,6 +7,41 @@ import 'package:flutter_desk/models/flutter_project.dart';
 import 'package:flutter_desk/models/flutter_device.dart';
 import 'package:file_selector/file_selector.dart';
 
+/// 显示添加项目对话框的辅助函数
+void showAddProjectDialog(BuildContext context) async {
+  final viewModel = context.read<ProjectViewModel>();
+  try {
+    const confirmButtonText = '选择';
+    final selectedDirectory = await getDirectoryPath(
+      confirmButtonText: confirmButtonText,
+      initialDirectory: '/Users/kun/CursorProjects',
+    );
+
+    if (selectedDirectory != null && context.mounted) {
+      final success = await viewModel.addProject(selectedDirectory);
+      if (!success && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(viewModel.error ?? '添加失败'),
+            backgroundColor: MacOSTheme.errorRed,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  } catch (e) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('选择文件夹失败: $e'),
+          backgroundColor: MacOSTheme.errorRed,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+}
+
 /// Console-style sidebar with projects and devices sections
 ///
 /// macOS Console app inspired design with two collapsible sections
@@ -19,27 +54,32 @@ class ConsoleSidebar extends StatelessWidget {
     final isDark = colors.isDark;
 
     return Container(
-      margin: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(left: 12, right: 12, top: 40, bottom: 12),
       width: 200,
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
         borderRadius: const BorderRadius.all(Radius.circular(12)),
+        border: Border.all(
+          color: isDark ? colors.border : Colors.white,
+          width: 0.5,
+        ),
         boxShadow: MacOSTheme.shadowCard,
       ),
-      child: const Column(
+      child: Column(
         children: [
           // Projects section
           Expanded(
             child: _SidebarSection(
               title: '项目',
-              child: _ProjectsSection(),
+              child: const _ProjectsSection(),
+              onAddAction: () => showAddProjectDialog(context),
             ),
           ),
 
-          Divider(height: 1, thickness: 0.5),
+          const Divider(height: 1, thickness: 0.5),
 
           // Devices section
-          Expanded(
+          const Expanded(
             child: _SidebarSection(
               title: '设备',
               child: _DevicesSection(),
@@ -55,10 +95,12 @@ class ConsoleSidebar extends StatelessWidget {
 class _SidebarSection extends StatelessWidget {
   final String title;
   final Widget child;
+  final VoidCallback? onAddAction;
 
   const _SidebarSection({
     required this.title,
     required this.child,
+    this.onAddAction,
   });
 
   @override
@@ -71,14 +113,37 @@ class _SidebarSection extends StatelessWidget {
         // Section header
         Padding(
           padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
-          child: Text(
-            title,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: MacOSTheme.weightSemibold,
-              color: colors.textSecondary,
-              letterSpacing: 0.5,
-            ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: MacOSTheme.weightSemibold,
+                  color: colors.textSecondary,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              if (onAddAction != null)
+                MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    onTap: onAddAction,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      child: Text(
+                        '+',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: MacOSTheme.weightMedium,
+                          color: MacOSTheme.systemBlue,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
         // Section content
@@ -109,7 +174,7 @@ class _ProjectsSection extends StatelessWidget {
 
         if (!viewModel.hasProjects) {
           return _EmptyProjectsState(
-            onAdd: () => _showAddProjectDialog(context),
+            onAdd: () => showAddProjectDialog(context),
           );
         }
 
@@ -128,40 +193,6 @@ class _ProjectsSection extends StatelessWidget {
         );
       },
     );
-  }
-
-  void _showAddProjectDialog(BuildContext context) async {
-    final viewModel = context.read<ProjectViewModel>();
-    try {
-      const confirmButtonText = '选择';
-      final selectedDirectory = await getDirectoryPath(
-        confirmButtonText: confirmButtonText,
-        initialDirectory: '/Users/kun/CursorProjects',
-      );
-
-      if (selectedDirectory != null && context.mounted) {
-        final success = await viewModel.addProject(selectedDirectory);
-        if (!success && context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(viewModel.error ?? '添加失败'),
-              backgroundColor: MacOSTheme.errorRed,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('选择文件夹失败: $e'),
-            backgroundColor: MacOSTheme.errorRed,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    }
   }
 }
 
@@ -395,6 +426,100 @@ class _SidebarProjectItem extends StatefulWidget {
 class _SidebarProjectItemState extends State<_SidebarProjectItem> {
   bool _isHovering = false;
 
+  void _showContextMenu(BuildContext context, TapDownDetails details) async {
+    final viewModel = context.read<ProjectViewModel>();
+    final colors = MacOSTheme.of(context);
+    final isDark = colors.isDark;
+
+    // 获取鼠标点击的全局位置
+    final tapPosition = details.globalPosition;
+
+    await showMenu<void>(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        tapPosition.dx,
+        tapPosition.dy,
+        tapPosition.dx,
+        tapPosition.dy,
+      ),
+      items: [
+        PopupMenuItem<void>(
+          height: 36,
+          child: Row(
+            children: [
+              const Icon(Icons.delete_outline, size: 16, color: MacOSTheme.errorRed),
+              const SizedBox(width: 8),
+              Text('移除项目', style: TextStyle(fontSize: 12, color: MacOSTheme.errorRed)),
+            ],
+          ),
+          onTap: () async {
+            // 延迟执行，让菜单先关闭
+            await Future.delayed(const Duration(milliseconds: 100));
+            if (context.mounted) {
+              _confirmRemoveProject(context, viewModel);
+            }
+          },
+        ),
+        PopupMenuItem<void>(
+          height: 36,
+          child: Row(
+            children: [
+              Icon(Icons.folder_open, size: 16, color: colors.textSecondary),
+              const SizedBox(width: 8),
+              Text('在 Finder 中显示', style: TextStyle(fontSize: 12, color: colors.textSecondary)),
+            ],
+          ),
+          onTap: () {
+            viewModel.openInFinder(widget.project.path);
+          },
+        ),
+      ],
+      color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+      elevation: 8,
+    );
+  }
+
+  void _confirmRemoveProject(BuildContext context, ProjectViewModel viewModel) {
+    final colors = MacOSTheme.of(context);
+    final isDark = colors.isDark;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF1C1C1E) : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        title: Text(
+          '移除项目',
+          style: TextStyle(color: colors.textPrimary, fontSize: 14, fontWeight: MacOSTheme.weightSemibold),
+        ),
+        content: Text(
+          '确定要从列表中移除 "${widget.project.name}" 吗？\n\n项目文件不会被删除。',
+          style: TextStyle(color: colors.textSecondary, fontSize: 12),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(
+              '取消',
+              style: TextStyle(color: MacOSTheme.systemBlue, fontSize: 12),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              viewModel.removeProject(widget.project);
+              Navigator.of(dialogContext).pop();
+            },
+            child: Text(
+              '移除',
+              style: TextStyle(color: MacOSTheme.errorRed, fontSize: 12, fontWeight: MacOSTheme.weightMedium),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = MacOSTheme.of(context);
@@ -406,20 +531,15 @@ class _SidebarProjectItemState extends State<_SidebarProjectItem> {
       onExit: (_) => setState(() => _isHovering = false),
       child: GestureDetector(
         onTap: widget.onTap,
+        onSecondaryTapDown: (details) => _showContextMenu(context, details),
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
             color: widget.isSelected
-                ? MacOSTheme.systemBlue.withOpacity(0.15)
+                ? (isDark ? const Color(0xFF3A3A3C) : const Color(0xFFF5F5F6))
                 : (_isHovering ? colors.hoverColor : null),
-            borderRadius: BorderRadius.circular(4),
-            border: widget.isSelected
-                ? Border.all(
-                    color: MacOSTheme.systemBlue.withOpacity(0.5),
-                    width: 1,
-                  )
-                : null,
+            borderRadius: BorderRadius.circular(6),
           ),
           child: Row(
             children: [
@@ -427,7 +547,7 @@ class _SidebarProjectItemState extends State<_SidebarProjectItem> {
                 Icons.folder_outlined,
                 size: 14,
                 color: widget.isSelected
-                    ? MacOSTheme.systemBlue
+                    ? const Color(0xFF017AFF)
                     : colors.textSecondary,
               ),
               const SizedBox(width: 8),
@@ -440,7 +560,7 @@ class _SidebarProjectItemState extends State<_SidebarProjectItem> {
                         ? MacOSTheme.weightMedium
                         : MacOSTheme.weightRegular,
                     color: widget.isSelected
-                        ? MacOSTheme.systemBlue
+                        ? const Color(0xFF017AFF)
                         : colors.textPrimary,
                   ),
                   overflow: TextOverflow.ellipsis,
@@ -476,6 +596,7 @@ class _SidebarDeviceItemState extends State<_SidebarDeviceItem> {
   @override
   Widget build(BuildContext context) {
     final colors = MacOSTheme.of(context);
+    final isDark = colors.isDark;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -488,21 +609,18 @@ class _SidebarDeviceItemState extends State<_SidebarDeviceItem> {
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
             color: widget.isSelected
-                ? MacOSTheme.systemBlue.withOpacity(0.15)
+                ? (isDark ? const Color(0xFF3A3A3C) : const Color(0xFFF5F5F6))
                 : (_isHovering ? colors.hoverColor : null),
-            borderRadius: BorderRadius.circular(4),
-            border: widget.isSelected
-                ? Border.all(
-                    color: MacOSTheme.systemBlue.withOpacity(0.5),
-                    width: 1,
-                  )
-                : null,
+            borderRadius: BorderRadius.circular(6),
           ),
           child: Row(
             children: [
-              Text(
-                widget.device.platformIcon,
-                style: const TextStyle(fontSize: 14),
+              Icon(
+                widget.device.iconData,
+                size: 14,
+                color: widget.isSelected
+                    ? const Color(0xFF017AFF)
+                    : colors.textSecondary,
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -514,7 +632,7 @@ class _SidebarDeviceItemState extends State<_SidebarDeviceItem> {
                         ? MacOSTheme.weightMedium
                         : MacOSTheme.weightRegular,
                     color: widget.isSelected
-                        ? MacOSTheme.systemBlue
+                        ? const Color(0xFF017AFF)
                         : colors.textPrimary,
                   ),
                   overflow: TextOverflow.ellipsis,

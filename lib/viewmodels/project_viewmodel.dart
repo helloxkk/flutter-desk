@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_desk/models/flutter_project.dart';
 import 'package:flutter_desk/services/storage_service.dart';
@@ -144,4 +145,13 @@ class ProjectViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// 在 Finder 中打开项目目录
+  Future<void> openInFinder(String path) async {
+    try {
+      await Process.run('open', [path]);
+    } catch (e) {
+      _error = '无法打开 Finder: $e';
+      notifyListeners();
+    }
+  }
 }

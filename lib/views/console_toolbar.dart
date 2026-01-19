@@ -400,11 +400,20 @@ class _SearchField extends StatefulWidget {
 
 class _SearchFieldState extends State<_SearchField> {
   final TextEditingController _controller = TextEditingController();
-  bool _isFocused = false;
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(() {
+      setState(() {});
+    });
+  }
 
   @override
   void dispose() {
     _controller.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -412,63 +421,61 @@ class _SearchFieldState extends State<_SearchField> {
   Widget build(BuildContext context) {
     final colors = MacOSTheme.of(context);
 
-    return FocusScope(
-      onFocusChange: (hasFocus) {
-        setState(() => _isFocused = hasFocus);
-      },
-      child: Container(
-        width: 160,
-        height: 28,
-        decoration: BoxDecoration(
-          color: colors.inputBackground,
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(
-            color: _isFocused
-                ? MacOSTheme.systemBlue
-                : colors.border,
-            width: _isFocused ? 1.5 : 0.5,
-          ),
+    return Container(
+      width: 160,
+      height: 28,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: colors.inputBackground,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: colors.border,
+          width: 0.5,
         ),
-        child: TextField(
-          controller: _controller,
-          style: TextStyle(
+      ),
+      child: TextField(
+        controller: _controller,
+        focusNode: _focusNode,
+        textAlignVertical: TextAlignVertical.center,
+        style: TextStyle(
+          fontSize: MacOSTheme.fontSizeCaption2,
+          color: colors.textPrimary,
+        ),
+        decoration: InputDecoration(
+          hintText: '搜索日志...',
+          hintStyle: TextStyle(
             fontSize: MacOSTheme.fontSizeCaption2,
-            color: colors.textPrimary,
+            color: colors.textSecondary,
           ),
-          decoration: InputDecoration(
-            hintText: '搜索日志...',
-            hintStyle: TextStyle(
-              fontSize: MacOSTheme.fontSizeCaption2,
-              color: colors.textSecondary,
-            ),
-            prefixIcon: Icon(
-              Icons.search,
-              size: 14,
-              color: colors.iconColor,
-            ),
-            suffixIcon: _controller.text.isNotEmpty
-                ? IconButton(
-                    icon: const Icon(Icons.close, size: 14),
-                    onPressed: () {
-                      _controller.clear();
-                      context.read<CommandViewModel>().setSearchKeyword('');
-                    },
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  )
-                : null,
-            border: InputBorder.none,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 8,
-              vertical: 4,
-            ),
-            isDense: true,
+          prefixIcon: Icon(
+            Icons.search,
+            size: 14,
+            color: colors.iconColor,
           ),
-          onChanged: (value) {
-            context.read<CommandViewModel>().setSearchKeyword(value);
-            setState(() {});
-          },
+          suffixIcon: _controller.text.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.close, size: 14),
+                  onPressed: () {
+                    _controller.clear();
+                    context.read<CommandViewModel>().setSearchKeyword('');
+                  },
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                )
+              : null,
+          border: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 8,
+            vertical: 0,
+          ),
+          isDense: true,
         ),
+        onChanged: (value) {
+          context.read<CommandViewModel>().setSearchKeyword(value);
+          setState(() {});
+        },
       ),
     );
   }

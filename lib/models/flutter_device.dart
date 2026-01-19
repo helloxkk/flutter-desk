@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'flutter_device.g.dart';
@@ -62,30 +63,29 @@ class FlutterDevice {
     // 解析设备名称
     final name = json['name'] as String;
 
-    // 解析平台
-    final platformStr = json['targetPlatform'] as String? ?? 'unknown';
+    // 解析平台 - 检查多个可能的字段
+    final platformStr = json['targetPlatform'] as String? ??
+                        json['platform'] as String? ??
+                        json['category'] as String? ?? 'unknown';
+
     DevicePlatform platform;
-    switch (platformStr.toLowerCase()) {
-      case 'ios':
-        platform = DevicePlatform.ios;
-        break;
-      case 'android':
-        platform = DevicePlatform.android;
-        break;
-      case 'macos':
-        platform = DevicePlatform.macos;
-        break;
-      case 'windows':
-        platform = DevicePlatform.windows;
-        break;
-      case 'linux':
-        platform = DevicePlatform.linux;
-        break;
-      case 'web':
-        platform = DevicePlatform.web;
-        break;
-      default:
-        platform = DevicePlatform.ios;
+    final platformLower = platformStr.toLowerCase();
+
+    // 使用更灵活的匹配逻辑
+    if (platformLower == 'ios') {
+      platform = DevicePlatform.ios;
+    } else if (platformLower.startsWith('android')) {
+      platform = DevicePlatform.android;
+    } else if (platformLower == 'darwin' || platformLower == 'macos') {
+      platform = DevicePlatform.macos;
+    } else if (platformLower == 'windows') {
+      platform = DevicePlatform.windows;
+    } else if (platformLower == 'linux') {
+      platform = DevicePlatform.linux;
+    } else if (platformLower.startsWith('web')) {
+      platform = DevicePlatform.web;
+    } else {
+      platform = DevicePlatform.ios;
     }
 
     // 判断设备类型
@@ -177,6 +177,40 @@ class FlutterDevice {
     }
 
     return '📱';  // 默认
+  }
+
+  /// 获取设备图标数据（用于 Icon widget）
+  IconData get iconData {
+    // 桌面平台
+    if (type == DeviceType.desktop) {
+      switch (platform) {
+        case DevicePlatform.macos:
+          return Icons.laptop_mac;
+        case DevicePlatform.windows:
+          return Icons.laptop_windows;
+        case DevicePlatform.linux:
+          return Icons.computer;
+        default:
+          return Icons.computer;
+      }
+    }
+
+    // iOS 设备
+    if (platform == DevicePlatform.ios) {
+      return Icons.phone_iphone;
+    }
+
+    // Android 设备
+    if (platform == DevicePlatform.android) {
+      return Icons.phone_android;
+    }
+
+    // Web
+    if (platform == DevicePlatform.web) {
+      return Icons.web;
+    }
+
+    return Icons.device_unknown;
   }
 
   @override

@@ -368,10 +368,11 @@ class _SearchField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 28,
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: const Color(0xFF2C2C2E),
         borderRadius: const BorderRadius.all(
-          Radius.circular(MacOSTheme.radiusSmall - 2),
+          Radius.circular(14),
         ),
         border: Border.all(
           color: const Color(0xFF38383A),
