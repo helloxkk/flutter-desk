@@ -6,10 +6,10 @@ import 'package:flutter_desk/features/run_control/presentation/viewmodels/run_co
 
 /// Dialog for running build_runner commands
 ///
-/// macOS native design with:
-/// - Visual card-based command buttons
-/// - Clear visual hierarchy
-/// - Proper spacing and typography
+/// macOS native dialog design:
+/// - Clean title without icon background
+/// - Card-based command buttons
+/// - Info section with light blue background
 class CodeGenDialog extends StatefulWidget {
   final String projectPath;
 
@@ -88,36 +88,19 @@ class _CodeGenDialogState extends State<CodeGenDialog> {
     final colors = MacOSTheme.of(context);
 
     return AlertDialog(
-      title: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: MacOSTheme.systemBlue.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(MacOSTheme.radiusSmall),
-            ),
-            child: Icon(
-              Icons.code_rounded,
-              size: 18,
-              color: MacOSTheme.systemBlue,
-            ),
-          ),
-          const SizedBox(width: 10),
-          const Text(
-            '代码生成',
-            style: TextStyle(
-              fontSize: MacOSTheme.fontSizeTitle3,
-              fontWeight: MacOSTheme.weightSemibold,
-              color: MacOSTheme.textPrimary,
-            ),
-          ),
-        ],
+      title: const Text(
+        '代码生成',
+        style: TextStyle(
+          fontSize: MacOSTheme.fontSizeTitle3,
+          fontWeight: MacOSTheme.weightSemibold,
+          color: MacOSTheme.textPrimary,
+        ),
       ),
-      contentPadding: const EdgeInsets.only(
-        left: MacOSTheme.paddingXL,
-        right: MacOSTheme.paddingXL,
-        top: MacOSTheme.paddingM,
-        bottom: MacOSTheme.paddingL,
+      contentPadding: const EdgeInsets.fromLTRB(
+        MacOSTheme.paddingXL,
+        MacOSTheme.paddingM,
+        MacOSTheme.paddingXL,
+        MacOSTheme.paddingL,
       ),
       content: SizedBox(
         width: 440,
@@ -125,11 +108,11 @@ class _CodeGenDialogState extends State<CodeGenDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Command buttons section
+            // build_runner label
             Text(
               'build_runner',
               style: TextStyle(
-                fontSize: MacOSTheme.fontSizeFootnote,
+                fontSize: MacOSTheme.fontSizeCaption2,
                 fontWeight: MacOSTheme.weightMedium,
                 color: colors.textSecondary,
               ),
@@ -179,7 +162,7 @@ class _CodeGenDialogState extends State<CodeGenDialog> {
               padding: const EdgeInsets.all(MacOSTheme.paddingM),
               decoration: BoxDecoration(
                 color: MacOSTheme.systemBlue.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(MacOSTheme.radiusMedium),
+                borderRadius: BorderRadius.circular(MacOSTheme.radiusSmall),
                 border: Border.all(
                   color: MacOSTheme.systemBlue.withValues(alpha: 0.2),
                   width: 0.5,
@@ -190,7 +173,7 @@ class _CodeGenDialogState extends State<CodeGenDialog> {
                 children: [
                   Icon(
                     Icons.info_outline_rounded,
-                    size: 18,
+                    size: 16,
                     color: MacOSTheme.systemBlue,
                   ),
                   const SizedBox(width: MacOSTheme.paddingS),
@@ -312,7 +295,7 @@ class _CommandButtonState extends State<_CommandButton> {
             padding: const EdgeInsets.all(MacOSTheme.paddingM),
             decoration: BoxDecoration(
               color: bgColor,
-              borderRadius: BorderRadius.circular(MacOSTheme.radiusMedium),
+              borderRadius: BorderRadius.circular(MacOSTheme.radiusSmall),
               border: Border.all(
                 color: borderColor,
                 width: 0.5,
@@ -335,7 +318,7 @@ class _CommandButtonState extends State<_CommandButton> {
                   size: 22,
                   color: fgColor,
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 4),
                 Text(
                   widget.label,
                   style: TextStyle(

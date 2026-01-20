@@ -6,10 +6,10 @@ import 'package:flutter_desk/features/run_control/presentation/viewmodels/run_co
 
 /// Dialog for configuring and executing Flutter builds
 ///
-/// macOS native design with:
-/// - Proper spacing using MacOSTheme padding constants
-/// - Typography hierarchy with SF Pro scale
-/// - Visual hierarchy with borders and backgrounds
+/// macOS native dialog design:
+/// - Clean title without icon background
+/// - Proper spacing and padding
+/// - Right-aligned action buttons
 class BuildConfigDialog extends StatefulWidget {
   final String projectPath;
 
@@ -105,36 +105,19 @@ class _BuildConfigDialogState extends State<BuildConfigDialog> {
     final colors = MacOSTheme.of(context);
 
     return AlertDialog(
-      title: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: MacOSTheme.systemBlue.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(MacOSTheme.radiusSmall),
-            ),
-            child: Icon(
-              Icons.build_rounded,
-              size: 18,
-              color: MacOSTheme.systemBlue,
-            ),
-          ),
-          const SizedBox(width: 10),
-          const Text(
-            '构建配置',
-            style: TextStyle(
-              fontSize: MacOSTheme.fontSizeTitle3,
-              fontWeight: MacOSTheme.weightSemibold,
-              color: MacOSTheme.textPrimary,
-            ),
-          ),
-        ],
+      title: const Text(
+        '构建配置',
+        style: TextStyle(
+          fontSize: MacOSTheme.fontSizeTitle3,
+          fontWeight: MacOSTheme.weightSemibold,
+          color: MacOSTheme.textPrimary,
+        ),
       ),
-      contentPadding: const EdgeInsets.only(
-        left: MacOSTheme.paddingXL,
-        right: MacOSTheme.paddingXL,
-        top: MacOSTheme.paddingM,
-        bottom: MacOSTheme.paddingL,
+      contentPadding: const EdgeInsets.fromLTRB(
+        MacOSTheme.paddingXL,
+        MacOSTheme.paddingM,
+        MacOSTheme.paddingXL,
+        MacOSTheme.paddingL,
       ),
       content: SizedBox(
         width: 440,
@@ -142,18 +125,21 @@ class _BuildConfigDialogState extends State<BuildConfigDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Platform selection section
-            _SectionLabel(
-              icon: Icons.devices_rounded,
-              label: '平台',
-              colors: colors,
+            // Platform selection
+            Text(
+              '平台',
+              style: TextStyle(
+                fontSize: MacOSTheme.fontSizeCaption2,
+                fontWeight: MacOSTheme.weightMedium,
+                color: colors.textSecondary,
+              ),
             ),
-            const SizedBox(height: MacOSTheme.paddingM),
+            const SizedBox(height: MacOSTheme.paddingS),
             Container(
-              padding: const EdgeInsets.all(MacOSTheme.paddingM),
+              padding: const EdgeInsets.all(MacOSTheme.paddingS),
               decoration: BoxDecoration(
                 color: colors.secondaryBackground,
-                borderRadius: BorderRadius.circular(MacOSTheme.radiusMedium),
+                borderRadius: BorderRadius.circular(MacOSTheme.radiusSmall),
                 border: Border.all(
                   color: colors.border,
                   width: 0.5,
@@ -173,17 +159,20 @@ class _BuildConfigDialogState extends State<BuildConfigDialog> {
             ),
             const SizedBox(height: MacOSTheme.paddingL),
 
-            // Build mode section
-            _SectionLabel(
-              icon: Icons.tune_rounded,
-              label: '构建模式',
-              colors: colors,
+            // Build mode
+            Text(
+              '构建模式',
+              style: TextStyle(
+                fontSize: MacOSTheme.fontSizeCaption2,
+                fontWeight: MacOSTheme.weightMedium,
+                color: colors.textSecondary,
+              ),
             ),
-            const SizedBox(height: MacOSTheme.paddingM),
+            const SizedBox(height: MacOSTheme.paddingS),
             Container(
               decoration: BoxDecoration(
                 color: colors.secondaryBackground,
-                borderRadius: BorderRadius.circular(MacOSTheme.radiusMedium),
+                borderRadius: BorderRadius.circular(MacOSTheme.radiusSmall),
                 border: Border.all(
                   color: colors.border,
                   width: 0.5,
@@ -211,7 +200,7 @@ class _BuildConfigDialogState extends State<BuildConfigDialog> {
                   ),
                   shape: WidgetStateProperty.all(
                     RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(MacOSTheme.radiusMedium),
+                      borderRadius: BorderRadius.circular(MacOSTheme.radiusSmall),
                     ),
                   ),
                 ),
@@ -233,13 +222,16 @@ class _BuildConfigDialogState extends State<BuildConfigDialog> {
             ),
             const SizedBox(height: MacOSTheme.paddingL),
 
-            // Extra args section
-            _SectionLabel(
-              icon: Icons.terminal_rounded,
-              label: '额外参数',
-              colors: colors,
+            // Extra args
+            Text(
+              '额外参数',
+              style: TextStyle(
+                fontSize: MacOSTheme.fontSizeCaption2,
+                fontWeight: MacOSTheme.weightMedium,
+                color: colors.textSecondary,
+              ),
             ),
-            const SizedBox(height: MacOSTheme.paddingM),
+            const SizedBox(height: MacOSTheme.paddingS),
             TextField(
               controller: _extraArgsController,
               decoration: InputDecoration(
@@ -322,7 +314,7 @@ class _BuildConfigDialogState extends State<BuildConfigDialog> {
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   ),
                 )
-              : const Text('开始构建'),
+              : const Text('构建'),
         ),
       ],
       actionsPadding: const EdgeInsets.fromLTRB(
@@ -331,41 +323,6 @@ class _BuildConfigDialogState extends State<BuildConfigDialog> {
         MacOSTheme.paddingXL,
         MacOSTheme.paddingL,
       ),
-    );
-  }
-}
-
-/// Section label with icon
-class _SectionLabel extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final MacOSColors colors;
-
-  const _SectionLabel({
-    required this.icon,
-    required this.label,
-    required this.colors,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(
-          icon,
-          size: 16,
-          color: colors.textSecondary,
-        ),
-        const SizedBox(width: 6),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: MacOSTheme.fontSizeFootnote,
-            fontWeight: MacOSTheme.weightMedium,
-            color: colors.textSecondary,
-          ),
-        ),
-      ],
     );
   }
 }
