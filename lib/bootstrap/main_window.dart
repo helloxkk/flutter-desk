@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_desk/core/theme/macos_theme.dart';
-import 'package:flutter_desk/bootstrap/providers/theme_viewmodel.dart';
 import 'package:flutter_desk/features/project_management/presentation/viewmodels/project_viewmodel.dart';
 import 'package:flutter_desk/features/device_management/presentation/viewmodels/device_viewmodel.dart';
 import 'package:flutter_desk/features/run_control/presentation/viewmodels/run_control_viewmodel.dart';
