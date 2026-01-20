@@ -6,7 +6,6 @@ import 'package:flutter_desk/features/device_management/presentation/viewmodels/
 import 'package:flutter_desk/features/run_control/presentation/viewmodels/run_control_viewmodel.dart';
 import 'package:flutter_desk/shared/presentation/widgets/compact_icon_button.dart';
 import 'package:flutter_desk/shared/models/flutter_project.dart';
-import 'package:flutter_desk/shared/models/flutter_device.dart';
 
 /// Action button group for run control
 ///

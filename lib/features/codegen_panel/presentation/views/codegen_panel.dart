@@ -298,7 +298,7 @@ class _CodegenActionButtonState extends State<_CodegenActionButton> {
             padding: const EdgeInsets.all(MacOSTheme.paddingM),
             decoration: BoxDecoration(
               color: _isPressed
-                  ? bgColor.withOpacity(0.8)
+                  ? bgColor.withValues(alpha: 0.8)
                   : (_isHovering && !widget.isPrimary
                       ? colors.hoverColor
                       : bgColor),
@@ -318,7 +318,7 @@ class _CodegenActionButtonState extends State<_CodegenActionButton> {
                 Icon(
                   widget.icon,
                   size: 20,
-                  color: fgColor.withOpacity(opacity),
+                  color: fgColor.withValues(alpha: opacity),
                 ),
                 const SizedBox(height: MacOSTheme.paddingXS),
                 Text(
@@ -328,7 +328,7 @@ class _CodegenActionButtonState extends State<_CodegenActionButton> {
                     fontWeight: widget.isPrimary
                         ? MacOSTheme.weightSemibold
                         : MacOSTheme.weightMedium,
-                    color: fgColor.withOpacity(opacity),
+                    color: fgColor.withValues(alpha: opacity),
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -336,7 +336,7 @@ class _CodegenActionButtonState extends State<_CodegenActionButton> {
                   widget.description,
                   style: TextStyle(
                     fontSize: MacOSTheme.fontSizeCaption2,
-                    color: colors.textSecondary.withOpacity(opacity * 0.8),
+                    color: colors.textSecondary.withValues(alpha: opacity * 0.8),
                   ),
                 ),
               ],
@@ -448,8 +448,8 @@ class _StopButtonState extends State<_StopButton> {
           ),
           decoration: BoxDecoration(
             color: _isHovering
-                ? MacOSTheme.errorRed.withOpacity(0.2)
-                : MacOSTheme.errorRed.withOpacity(0.1),
+                ? MacOSTheme.errorRed.withValues(alpha: 0.2)
+                : MacOSTheme.errorRed.withValues(alpha: 0.1),
             borderRadius: const BorderRadius.all(
               Radius.circular(MacOSTheme.radiusSmall),
             ),

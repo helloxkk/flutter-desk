@@ -35,7 +35,7 @@ class LogLine extends StatelessWidget {
     );
   }
 
-  Color _getLogColor(String log, macOSColors colors) {
+  Color _getLogColor(String log, MacOSColors colors) {
     final isDark = colors.isDark;
 
     // Terminal-style syntax highlighting with theme awareness

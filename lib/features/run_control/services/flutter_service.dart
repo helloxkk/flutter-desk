@@ -1,3 +1,12 @@
+import 'dart:io';
+import 'dart:convert';
+
+import 'package:flutter_desk/core/utils/constants.dart';
+import 'package:flutter_desk/shared/models/build_config.dart';
+import 'package:flutter_desk/shared/models/command_state.dart';
+import 'package:flutter_desk/shared/models/flutter_device.dart';
+import 'package:flutter_desk/shared/models/flutter_project.dart';
+
 /// Flutter 命令执行服务
 ///
 /// 负责执行各种 Flutter 命令（run、build、clean、pub get 等），

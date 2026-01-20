@@ -74,9 +74,9 @@ class ConsoleSidebar extends StatelessWidget {
           Expanded(
             child: _SidebarSection(
               title: '设备',
-              child: const _DevicesSection(),
               onAddAction: () => _refreshDevices(context),
               actionIcon: Icons.refresh_rounded,
+              child: const _DevicesSection(),
             ),
           ),
         ],
@@ -88,17 +88,15 @@ class ConsoleSidebar extends StatelessWidget {
 /// Sidebar section with header and content
 class _SidebarSection extends StatelessWidget {
   final String title;
-  final Widget child;
   final VoidCallback? onAddAction;
-  final String? actionLabel;
   final IconData? actionIcon;
+  final Widget child;
 
   const _SidebarSection({
     required this.title,
-    required this.child,
     this.onAddAction,
-    this.actionLabel,
     this.actionIcon,
+    required this.child,
   });
 
   @override
@@ -136,14 +134,7 @@ class _SidebarSection extends StatelessWidget {
                               size: 14,
                               color: MacOSTheme.systemBlue,
                             )
-                          : Text(
-                              actionLabel ?? '+',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: MacOSTheme.weightMedium,
-                                color: MacOSTheme.systemBlue,
-                              ),
-                            ),
+                          : const SizedBox(),
                     ),
                   ),
                 ),

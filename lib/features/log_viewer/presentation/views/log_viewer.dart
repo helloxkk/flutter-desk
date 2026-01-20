@@ -334,8 +334,8 @@ class _ToolbarIconButtonState extends State<_ToolbarIconButton> {
             height: 24,
             decoration: BoxDecoration(
               color: _isHovering
-                  ? Colors.white.withOpacity(0.1)
-                  : (widget.isActive ? MacOSTheme.systemBlue.withOpacity(0.2) : null),
+                  ? Colors.white.withValues(alpha: 0.1)
+                  : (widget.isActive ? MacOSTheme.systemBlue.withValues(alpha: 0.2) : null),
               borderRadius: const BorderRadius.all(
                 Radius.circular(MacOSTheme.radiusSmall - 2),
               ),
@@ -432,12 +432,12 @@ class _ErrorBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(MacOSTheme.paddingS),
       decoration: BoxDecoration(
-        color: MacOSTheme.errorRed.withOpacity(0.15),
+        color: MacOSTheme.errorRed.withValues(alpha: 0.15),
         borderRadius: const BorderRadius.all(
           Radius.circular(MacOSTheme.radiusSmall - 2),
         ),
         border: Border.all(
-          color: MacOSTheme.errorRed.withOpacity(0.3),
+          color: MacOSTheme.errorRed.withValues(alpha: 0.3),
           width: 0.5,
         ),
       ),

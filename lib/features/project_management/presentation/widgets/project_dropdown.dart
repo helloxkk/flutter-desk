@@ -56,7 +56,7 @@ class ProjectDropdown extends StatelessWidget {
               ),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? MacOSTheme.systemBlue.withOpacity(0.1)
+                    ? MacOSTheme.systemBlue.withValues(alpha: 0.1)
                     : null,
               ),
               child: Row(

@@ -11,7 +11,7 @@ BuildConfig _$BuildConfigFromJson(Map<String, dynamic> json) => BuildConfig(
       isRelease: json['isRelease'] as bool? ?? true,
       splitDebugInfo: json['splitDebugInfo'] as String?,
       splitPerAbi: json['splitPerAbi'] as bool?,
-      output_path: json['output_path'] as String?,
+      outputPath: json['output_path'] as String?,
       extraArgs: (json['extraArgs'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
@@ -24,7 +24,7 @@ Map<String, dynamic> _$BuildConfigToJson(BuildConfig instance) =>
       'isRelease': instance.isRelease,
       'splitDebugInfo': instance.splitDebugInfo,
       'splitPerAbi': instance.splitPerAbi,
-      'output_path': instance.output_path,
+      'output_path': instance.outputPath,
       'extraArgs': instance.extraArgs,
     };
 

@@ -1,7 +1,6 @@
-/// Shared layer - 共享层
-///
-/// 包含跨 feature 复用的组件和模型
-library shared;
+// Shared layer - 共享层
+//
+// 包含跨 feature 复用的组件和模型
 
 // Models
 export 'models/command_state.dart';

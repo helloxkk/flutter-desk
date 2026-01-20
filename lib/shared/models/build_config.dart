@@ -42,7 +42,8 @@ class BuildConfig {
   final bool? splitPerAbi;
 
   /// 构建输出路径（可选）
-  final String? output_path;
+  @JsonKey(name: 'output_path')
+  final String? outputPath;
 
   /// 额外的构建参数
   final List<String> extraArgs;
@@ -52,7 +53,7 @@ class BuildConfig {
     this.isRelease = true,
     this.splitDebugInfo,
     this.splitPerAbi,
-    this.output_path,
+    this.outputPath,
     this.extraArgs = const [],
   });
 
@@ -69,7 +70,7 @@ class BuildConfig {
     bool? isRelease,
     String? splitDebugInfo,
     bool? splitPerAbi,
-    String? output_path,
+    String? outputPath,
     List<String>? extraArgs,
   }) {
     return BuildConfig(
@@ -77,7 +78,7 @@ class BuildConfig {
       isRelease: isRelease ?? this.isRelease,
       splitDebugInfo: splitDebugInfo ?? this.splitDebugInfo,
       splitPerAbi: splitPerAbi ?? this.splitPerAbi,
-      output_path: output_path ?? this.output_path,
+      outputPath: outputPath ?? this.outputPath,
       extraArgs: extraArgs ?? this.extraArgs,
     );
   }
@@ -129,8 +130,8 @@ class BuildConfig {
     }
 
     // 添加输出路径
-    if (output_path != null) {
-      command.addAll(['--build-output', output_path!]);
+    if (outputPath != null) {
+      command.addAll(['--build-output', outputPath!]);
     }
 
     // 添加额外参数

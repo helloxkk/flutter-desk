@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_desk/shared/models/command_state.dart';
 import 'package:flutter_desk/shared/models/flutter_project.dart';
@@ -60,7 +61,7 @@ class TrayService {
         'isRunning': isRunning,
       });
     } catch (e) {
-      print('[TrayService] Failed to update tray state: $e');
+      debugPrint('[TrayService] Failed to update tray state: $e');
     }
   }
 
@@ -71,7 +72,7 @@ class TrayService {
     try {
       await _methodChannel.invokeMethod('showMainWindow');
     } catch (e) {
-      print('[TrayService] Failed to show main window: $e');
+      debugPrint('[TrayService] Failed to show main window: $e');
     }
   }
 
@@ -82,7 +83,7 @@ class TrayService {
     try {
       await _methodChannel.invokeMethod('hideMainWindow');
     } catch (e) {
-      print('[TrayService] Failed to hide main window: $e');
+      debugPrint('[TrayService] Failed to hide main window: $e');
     }
   }
 
@@ -93,7 +94,7 @@ class TrayService {
     try {
       await _methodChannel.invokeMethod('quitApp');
     } catch (e) {
-      print('[TrayService] Failed to quit app: $e');
+      debugPrint('[TrayService] Failed to quit app: $e');
     }
   }
 

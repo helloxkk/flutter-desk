@@ -322,7 +322,7 @@ class _BuildTypeChipState extends State<_BuildTypeChip> {
               Icon(
                 _getIconForType(widget.type),
                 size: 14,
-                color: fgColor.withOpacity(opacity),
+                color: fgColor.withValues(alpha: opacity),
               ),
               const SizedBox(width: MacOSTheme.paddingXS),
               Text(
@@ -332,7 +332,7 @@ class _BuildTypeChipState extends State<_BuildTypeChip> {
                   fontWeight: widget.isSelected
                       ? MacOSTheme.weightSemibold
                       : MacOSTheme.weightMedium,
-                  color: fgColor.withOpacity(opacity),
+                  color: fgColor.withValues(alpha: opacity),
                 ),
               ),
             ],
@@ -449,7 +449,7 @@ class _ModeToggleState extends State<_ModeToggle> {
               fontWeight: widget.isSelected
                   ? MacOSTheme.weightSemibold
                   : MacOSTheme.weightMedium,
-              color: fgColor.withOpacity(opacity),
+              color: fgColor.withValues(alpha: opacity),
             ),
           ),
         ),
@@ -504,7 +504,7 @@ class _BuildButtonState extends State<_BuildButton> {
             height: 36,
             decoration: BoxDecoration(
               color: _isPressed
-                  ? MacOSTheme.systemBlue.withOpacity(0.8)
+                  ? MacOSTheme.systemBlue.withValues(alpha: 0.8)
                   : (_isHovering
                       ? const Color(0xFF0066CC)
                       : MacOSTheme.systemBlue),
@@ -630,7 +630,6 @@ class _OpenOutputButtonState extends State<_OpenOutputButton> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final opacity = widget.isEnabled ? 1.0 : 0.4;
 
     return MouseRegion(
@@ -646,7 +645,7 @@ class _OpenOutputButtonState extends State<_OpenOutputButton> {
             height: 36,
             decoration: BoxDecoration(
               color: _isHovering && widget.isEnabled
-                  ? MacOSTheme.systemBlue.withOpacity(0.2)
+                  ? MacOSTheme.systemBlue.withValues(alpha: 0.2)
                   : Colors.transparent,
               borderRadius: const BorderRadius.all(
                 Radius.circular(MacOSTheme.radiusSmall),
@@ -662,7 +661,7 @@ class _OpenOutputButtonState extends State<_OpenOutputButton> {
                 Icon(
                   Icons.folder_open_rounded,
                   size: 14,
-                  color: MacOSTheme.systemBlue.withOpacity(opacity),
+                  color: MacOSTheme.systemBlue.withValues(alpha: opacity),
                 ),
                 const SizedBox(width: 4),
                 Text(
@@ -670,7 +669,7 @@ class _OpenOutputButtonState extends State<_OpenOutputButton> {
                   style: TextStyle(
                     fontSize: MacOSTheme.fontSizeCaption2,
                     fontWeight: MacOSTheme.weightMedium,
-                    color: MacOSTheme.systemBlue.withOpacity(opacity),
+                    color: MacOSTheme.systemBlue.withValues(alpha: opacity),
                   ),
                 ),
               ],

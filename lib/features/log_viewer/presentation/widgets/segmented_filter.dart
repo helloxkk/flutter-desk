@@ -87,15 +87,13 @@ class _SegmentButton extends StatefulWidget {
 }
 
 class _SegmentButtonState extends State<_SegmentButton> {
-  bool _isHovering = false;
-
   @override
   Widget build(BuildContext context) {
     final colors = MacOSTheme.of(context);
 
     return MouseRegion(
-      onEnter: (_) => setState(() => _isHovering = true),
-      onExit: (_) => setState(() => _isHovering = false),
+      onEnter: (_) => setState(() {}),
+      onExit: (_) => setState(() {}),
       child: GestureDetector(
         onTap: widget.onPressed,
         child: AnimatedContainer(
@@ -109,7 +107,7 @@ class _SegmentButtonState extends State<_SegmentButton> {
             boxShadow: widget.isSelected
                 ? [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withValues(alpha: 0.05),
                       blurRadius: 2,
                       offset: const Offset(0, 1),
                     ),
@@ -150,7 +148,6 @@ class _LogCountIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = MacOSTheme.of(context);
 
-    final displayCount = hasFilter ? filteredCount : count;
     final text = hasFilter
         ? '$filteredCount / $count 条'
         : '$count 条';

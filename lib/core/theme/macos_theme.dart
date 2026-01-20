@@ -125,9 +125,9 @@ class MacOSTheme {
   // ============== Helper Methods ==============
 
   /// Get colors based on current theme brightness
-  static macOSColors of(BuildContext context) {
+  static MacOSColors of(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return macOSColors(isDark: isDark);
+    return MacOSColors(isDark: isDark);
   }
 
   // ============== Light Theme Data ==============
@@ -372,7 +372,7 @@ class MacOSTheme {
           ),
         ),
         elevation: 4,
-        shadowColor: Colors.black.withOpacity(0.15),
+        shadowColor: Colors.black.withValues(alpha: 0.15),
       ),
 
       // Divider theme
@@ -640,7 +640,7 @@ class MacOSTheme {
           ),
         ),
         elevation: 4,
-        shadowColor: Colors.black.withOpacity(0.3),
+        shadowColor: Colors.black.withValues(alpha: 0.3),
       ),
 
       // Divider theme
@@ -668,10 +668,10 @@ class MacOSTheme {
 }
 
 /// macOS Colors that automatically adapt to light/dark mode
-class macOSColors {
+class MacOSColors {
   final bool isDark;
 
-  const macOSColors({required this.isDark});
+  const MacOSColors({required this.isDark});
 
   // Text colors
   Color get textPrimary => isDark ? MacOSTheme.textPrimaryDark : MacOSTheme.textPrimary;
@@ -693,8 +693,8 @@ class macOSColors {
 
   // Hover colors
   Color get hoverColor => isDark
-      ? Colors.white.withOpacity(0.1)
-      : Colors.black.withOpacity(0.05);
+      ? Colors.white.withValues(alpha: 0.1)
+      : Colors.black.withValues(alpha: 0.05);
 
   // Icon colors
   Color get iconColor => MacOSTheme.systemGray2;

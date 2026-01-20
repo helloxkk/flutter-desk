@@ -203,7 +203,7 @@ class InlineErrorState extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(MacOSTheme.paddingM),
       decoration: BoxDecoration(
-        color: MacOSTheme.errorRed.withOpacity(0.08),
+        color: MacOSTheme.errorRed.withValues(alpha: 0.08),
         borderRadius: const BorderRadius.all(
           Radius.circular(MacOSTheme.radiusSmall),
         ),

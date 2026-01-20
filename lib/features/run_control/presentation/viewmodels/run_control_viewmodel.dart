@@ -107,7 +107,6 @@ class CommandViewModel extends ChangeNotifier {
         ).toList();
         break;
       case LogFilter.all:
-      default:
         break;
     }
 
