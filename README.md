@@ -115,36 +115,56 @@ flutter build macos --release
 
 ### 项目结构
 
+采用 **渐进式模块化架构**（Core + Shared + Features 垂直分片）：
+
 ```
 lib/
-├── main.dart                 # 应用入口
-├── models/                   # 数据模型
-│   ├── build_config.dart     # 构建配置
-│   ├── command_state.dart    # 命令状态
-│   ├── flutter_project.dart  # 项目模型
-│   └── flutter_device.dart   # 设备模型
-├── viewmodels/               # 视图模型
-│   ├── command_viewmodel.dart
-│   ├── device_viewmodel.dart
-│   └── project_viewmodel.dart
-├── views/                    # UI 组件
-│   ├── main_window.dart      # 主窗口
-│   ├── build_panel.dart      # 构建面板
-│   ├── codegen_panel.dart    # 代码生成面板
-│   ├── action_panel.dart     # 操作面板
-│   ├── device_selector.dart  # 设备选择器
-│   ├── project_selector.dart # 项目选择器
-│   └── log_viewer.dart       # 日志查看器
-├── services/                 # 业务逻辑
-│   ├── flutter_service.dart  # Flutter 命令执行
-│   ├── device_service.dart   # 设备检测
-│   ├── storage_service.dart  # 配置持久化
-│   └── tray_service.dart     # 系统托盘
-├── theme/                    # 主题
-│   └── macos_theme.dart      # macOS 原生主题
-└── utils/                    # 工具类
-    └── constants.dart        # 常量定义
+├── main.dart                      # 应用入口
+│
+├── bootstrap/                     # 启动配置
+│   ├── initialization/            # 应用初始化
+│   ├── providers/                 # Provider 配置
+│   └── main_window.dart           # 主窗口
+│
+├── core/                          # 核心层（无业务依赖）
+│   ├── theme/                     # macOS 原生主题
+│   ├── utils/                     # 工具类和常量
+│   └── config/                    # 应用配置
+│
+├── shared/                        # 共享层（跨 feature 复用）
+│   ├── models/                    # 数据模型
+│   │   ├── build_config.dart      # 构建配置
+│   │   ├── command_state.dart     # 命令状态
+│   │   ├── flutter_project.dart   # 项目模型
+│   │   └── flutter_device.dart    # 设备模型
+│   ├── services/                  # 全局服务
+│   │   ├── storage_service.dart   # 配置持久化
+│   │   └── tray_service.dart      # 系统托盘
+│   └── widgets/                   # 通用组件
+│
+└── features/                      # 功能特性层（垂直分片）
+    ├── build_panel/               # 构建面板
+    │   └── presentation/views/build_panel.dart
+    ├── codegen_panel/             # 代码生成
+    │   └── presentation/views/codegen_panel.dart
+    ├── device_management/         # 设备管理
+    │   ├── presentation/viewmodels/device_viewmodel.dart
+    │   └── services/device_service.dart
+    ├── log_viewer/                # 日志查看
+    │   └── presentation/views/log_viewer.dart
+    ├── project_management/        # 项目管理
+    │   ├── presentation/viewmodels/project_viewmodel.dart
+    │   └── presentation/views/console_sidebar.dart
+    └── run_control/               # 运行控制
+        ├── presentation/viewmodels/run_control_viewmodel.dart
+        ├── presentation/views/console_toolbar.dart
+        └── services/flutter_service.dart
 ```
+
+**架构特点**：
+- **Core 层**：基础设施，无业务逻辑依赖
+- **Shared 层**：跨 feature 复用的模型和服务
+- **Features 层**：按业务功能垂直分片，每个 feature 自包含
 
 ### 开发命令
 
