@@ -40,8 +40,20 @@ class CommandViewModel extends ChangeNotifier {
   /// 是否正在执行命令（防止重复执行）
   bool _isExecuting = false;
 
+  /// 上次构建状态
+  QuickActionStatus _lastBuildStatus = QuickActionStatus.none;
+
+  /// 上次代码生成状态
+  QuickActionStatus _lastCodeGenStatus = QuickActionStatus.none;
+
   /// 当前状态
   CommandState get state => _state;
+
+  /// 上次构建状态
+  QuickActionStatus get lastBuildStatus => _lastBuildStatus;
+
+  /// 上次代码生成状态
+  QuickActionStatus get lastCodeGenStatus => _lastCodeGenStatus;
 
   /// 是否正在运行
   bool get isRunning => _state.isRunning;
@@ -343,8 +355,11 @@ class CommandViewModel extends ChangeNotifier {
     _isExecuting = true;
     try {
       await _flutterService.build(projectPath, config);
+      _lastBuildStatus = QuickActionStatus.success;
       // 状态和日志会通过监听器自动更新
+      notifyListeners();
     } catch (e) {
+      _lastBuildStatus = QuickActionStatus.failure;
       _updateState(_state.copyWith(
         status: ProcessStatus.error,
         error: e.toString(),
@@ -369,8 +384,11 @@ class CommandViewModel extends ChangeNotifier {
         command: command,
         deleteConflictingOutputs: deleteConflictingOutputs,
       );
+      _lastCodeGenStatus = QuickActionStatus.success;
       // 状态和日志会通过监听器自动更新
+      notifyListeners();
     } catch (e) {
+      _lastCodeGenStatus = QuickActionStatus.failure;
       _updateState(_state.copyWith(
         status: ProcessStatus.error,
         error: e.toString(),

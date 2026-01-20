@@ -66,3 +66,15 @@ enum BuildRunnerCommand {
   /// 监视文件变化并自动构建
   watch,
 }
+
+/// 快捷操作状态
+enum QuickActionStatus {
+  /// 无状态
+  none,
+
+  /// 上次操作成功
+  success,
+
+  /// 上次操作失败
+  failure,
+}

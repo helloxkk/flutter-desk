@@ -6,6 +6,7 @@ import 'package:flutter_desk/features/run_control/presentation/viewmodels/run_co
 import 'package:flutter_desk/features/run_control/presentation/widgets/status_toolbar.dart';
 import 'package:flutter_desk/features/run_control/presentation/widgets/action_button_group.dart';
 import 'package:flutter_desk/shared/presentation/widgets/macos_search_field.dart';
+import 'package:flutter_desk/shared/presentation/widgets/quick_action_buttons.dart';
 
 /// Console-style toolbar with title, actions, and search
 ///
@@ -40,6 +41,13 @@ class ConsoleToolbar extends StatelessWidget {
 
           // Center zone: Action buttons
           const Expanded(child: ActionButtonGroup()),
+
+          const SizedBox(width: 8),
+
+          // Quick action buttons: Build and CodeGen
+          const QuickActionButtons(),
+
+          const SizedBox(width: 16),
 
           // Right zone: Search and theme toggle
           const _RightZone(),

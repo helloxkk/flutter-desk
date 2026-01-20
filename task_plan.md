@@ -1,38 +1,59 @@
-# Task Plan: FlutterDesk 分包架构重构
+# Task Plan: Integrate BuildPanel and CodeGenPanel into Main Window
 
 ## Goal
-将 FlutterDesk 从平铺目录结构迁移到渐进式模块化架构（Core + Shared + Features 垂直分片），保持应用可正常运行。
+Add build and code generation quick action buttons to the console toolbar, providing a streamlined user experience with dialog-based configuration and quick menu shortcuts.
 
 ## Phases
-- [x] Phase 0: 准备工作 - 创建备份分支、验证当前状态
-- [x] Phase 1: 建立新结构 - 创建所有目录和 barrel exports
-- [x] Phase 2: 迁移 Core 层 - 主题和工具类
-- [x] Phase 3: 迁移 Shared 层 - 模型和服务
-- [x] Phase 4: 迁移 Features 层 - 6个 feature 逐个迁移
-- [x] Phase 5: 更新入口和清理 - Provider 配置 + 删除旧代码
-- [x] Phase 6: 测试验证 - 分析 + 测试 + 构建
+- [x] Phase 1: Analyze current codebase structure
+- [x] Phase 2: Create QuickActionButtons component with build and codegen buttons
+- [x] Phase 3: Create BuildConfigDialog for build configuration
+- [x] Phase 4: Create CodeGenDialog for code generation commands
+- [x] Phase 5: Integrate QuickActionButtons into ConsoleToolbar
+- [x] Phase 6: Test and verify all functionality
 
 ## Key Questions
-1. 是否需要保留旧代码作为备份？（决定：使用 Git 分支备份）
-2. 是否需要一次性迁移所有 features？（决定：逐个迁移，保持可运行）
-3. 是否需要添加新的依赖包？（决定：暂时不需要，使用现有 Provider）
+1. Should the buttons show status indicators? Yes - show last result status ✅
+2. Left click vs right click? Left = dialog, Right = quick menu ✅
+3. What quick presets to show? macOS Debug/Release, and common build_runner commands ✅
 
-## Decisions Made
-- **渐进式迁移**: 不一次性大重构，降低风险
-- **保持可运行**: 每个阶段后应用可正常运行
-- **使用 Git 分支**: refactor/modular-architecture 用于回滚
+## Design Decisions
+- **Button style**: Match CompactIconButton design (28x28) ✅
+- **Status indicators**: Corner badge for success/fail ✅
+- **Dialog approach**: Use AlertDialog with form controls ✅
+- **Quick menu**: PopupMenuItem with common presets ✅
 
-## Errors Encountered
-- (待记录)
+## Files Created
+- ✅ `lib/shared/presentation/widgets/quick_action_buttons.dart`
+- ✅ `lib/shared/presentation/widgets/build_config_dialog.dart`
+- ✅ `lib/shared/presentation/widgets/codegen_dialog.dart`
+
+## Files Modified
+- ✅ `lib/features/run_control/presentation/views/console_toolbar.dart` - Added QuickActionButtons
+- ✅ `lib/features/run_control/presentation/viewmodels/run_control_viewmodel.dart` - Added status tracking (lastBuildStatus, lastCodeGenStatus)
+- ✅ `lib/core/utils/constants.dart` - Added QuickActionStatus enum
 
 ## Status
-**✅ 完成** - 所有阶段已完成，迁移成功！
+**✅ 完成** - Implementation complete, build successful!
 
-### 验证结果
-- ✅ `flutter analyze` - 通过（48个 info，无 error）
-- ✅ `flutter test` - 通过（1个测试）
-- ✅ `flutter build macos --debug` - 成功
-- ✅ 目录结构已更新为 Core + Shared + Features 架构
+### Verification
+- ✅ `flutter analyze` - No issues
+- ✅ `flutter build macos --debug` - Success
 
-## Reference
-- 详细设计文档: `docs/plans/2025-01-20-modular-architecture-design.md`
+## Summary
+
+Added two quick action buttons (Build 🔨 and CodeGen ⚙️) to the console toolbar:
+
+1. **Left click** opens a dialog with full configuration options
+2. **Right click** shows a quick menu with common presets
+3. **Status indicators** show ✓ or ✗ badge in corner based on last operation result
+
+### Build Dialog Features
+- Platform selection (macOS, iOS, Android APK/Bundle, Windows, Linux, Web)
+- Debug/Release mode toggle
+- Extra arguments text field
+- "开始构建" and "打开输出" buttons
+
+### CodeGen Dialog Features
+- Build, Clean, Watch buttons
+- Descriptions for each command
+- Info box explaining build_runner usage
