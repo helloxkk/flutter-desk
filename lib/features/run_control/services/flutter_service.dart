@@ -1,29 +1,35 @@
-import 'dart:io';
-import 'dart:convert';
-import 'package:flutter_desk/shared/models/command_state.dart';
-import 'package:flutter_desk/shared/models/flutter_project.dart';
-import 'package:flutter_desk/shared/models/flutter_device.dart';
-import 'package:flutter_desk/shared/models/build_config.dart';
-import 'package:flutter_desk/core/utils/constants.dart';
-
 /// Flutter 命令执行服务
+///
+/// 负责执行各种 Flutter 命令（run、build、clean、pub get 等），
+/// 管理子进程的生命周期，并提供实时输出流。
 class FlutterService {
+  /// 主 Flutter 运行进程（flutter run）
   Process? _process;
-  /// 用于长时间运行的命令（如 build, watch）
+
+  /// 长时间运行的进程（如 build、watch）
   Process? _longRunningProcess;
+
+  /// 状态变化监听器列表
   final List<void Function()> _statusListeners = [];
+
+  /// 标准输出监听器列表
   final List<void Function(String)> _outputListeners = [];
+
+  /// 错误输出监听器列表
   final List<void Function(String)> _errorListeners = [];
 
+  /// 当前命令执行状态
   CommandState _state = CommandState();
 
-  /// 当前状态
+  // ==================== 状态和监听器 ====================
+
+  /// 获取当前状态
   CommandState get state => _state;
 
-  /// 是否正在运行
+  /// 是否有正在运行的进程
   bool get isRunning => _state.isRunning;
 
-  /// 添加状态监听器
+  /// 添加状态变化监听器
   void addStatusListener(void Function() listener) {
     _statusListeners.add(listener);
   }
@@ -33,7 +39,7 @@ class FlutterService {
     _statusListeners.remove(listener);
   }
 
-  /// 添加输出监听器
+  /// 添加标准输出监听器
   void addOutputListener(void Function(String) listener) {
     _outputListeners.add(listener);
   }
@@ -43,7 +49,7 @@ class FlutterService {
     _outputListeners.remove(listener);
   }
 
-  /// 添加错误监听器
+  /// 添加错误输出监听器
   void addErrorListener(void Function(String) listener) {
     _errorListeners.add(listener);
   }
@@ -53,7 +59,9 @@ class FlutterService {
     _errorListeners.remove(listener);
   }
 
-  /// 更新状态
+  // ==================== 私有辅助方法 ====================
+
+  /// 更新状态并通知所有监听器
   void _updateState(CommandState newState) {
     _state = newState;
     for (final listener in _statusListeners) {
@@ -61,7 +69,12 @@ class FlutterService {
     }
   }
 
+  // ==================== 主要命令 ====================
+
   /// 运行 Flutter 项目
+  ///
+  /// 启动 `flutter run` 进程，监听其输出并管理其生命周期。
+  /// 进程启动后，可以通过 stdin 发送命令进行热重载/热重启。
   Future<void> run(
     FlutterProject project,
     FlutterDevice device,
@@ -70,7 +83,7 @@ class FlutterService {
       throw StateError('Flutter 进程已在运行中');
     }
 
-    // 验证项目路径
+    // 验证项目路径是否存在
     final projectDir = Directory(project.path);
     if (!projectDir.existsSync()) {
       throw FileSystemException('项目目录不存在', project.path);
@@ -131,6 +144,9 @@ class FlutterService {
   }
 
   /// 热重载
+  ///
+  /// 向运行中的 Flutter 进程发送 'r' 命令，
+  /// 触发热重载以应用代码更改而不重启应用。
   Future<void> hotReload() async {
     if (_process == null) {
       throw StateError('Flutter 进程未运行');
@@ -152,6 +168,9 @@ class FlutterService {
   }
 
   /// 热重启
+  ///
+  /// 向运行中的 Flutter 进程发送 'R' 命令，
+  /// 触发完全重启以应用所有更改（包括需要重启的更改）。
   Future<void> hotRestart() async {
     if (_process == null) {
       throw StateError('Flutter 进程未运行');
@@ -173,6 +192,9 @@ class FlutterService {
   }
 
   /// 停止运行
+  ///
+  /// 向运行中的 Flutter 进程发送 'q' 命令以优雅退出。
+  /// 如果进程在 5 秒内未退出，将强制终止。
   Future<void> stop() async {
     if (_process == null) {
       return;
@@ -210,7 +232,11 @@ class FlutterService {
     }
   }
 
-  /// 处理输出
+  // ==================== 输出处理 ====================
+
+  /// 处理标准输出
+  ///
+  /// 解析进程输出，逐行添加到日志，并通知所有输出监听器。
   void _handleOutput(String data) {
     final lines = data.split('\n').where((line) => line.isNotEmpty);
     for (final line in lines) {
@@ -221,7 +247,9 @@ class FlutterService {
     }
   }
 
-  /// 处理错误
+  /// 处理错误输出
+  ///
+  /// 解析错误输出，添加 [ERROR] 前缀，并通知所有错误监听器。
   void _handleError(String data) {
     final lines = data.split('\n').where((line) => line.isNotEmpty);
     for (final line in lines) {
@@ -233,6 +261,10 @@ class FlutterService {
   }
 
   /// 处理进程退出
+  ///
+  /// 根据退出码更新状态：
+  /// - 0: 正常停止
+  /// - 非 0: 异常退出，记录错误
   void _handleExit(int exitCode) {
     _process = null;
     if (exitCode == 0) {
@@ -254,7 +286,11 @@ class FlutterService {
     _updateState(_state.clearLogs());
   }
 
+  // ==================== 工具命令 ====================
+
   /// Flutter clean - 清理构建产物
+  ///
+  /// 删除项目的 build 目录和生成的文件。
   Future<String> cleanProject(String projectPath) async {
     final projectDir = Directory(projectPath);
     if (!projectDir.existsSync()) {
@@ -289,6 +325,8 @@ class FlutterService {
   }
 
   /// Flutter pub get - 获取依赖
+  ///
+  /// 下载 pubspec.yaml 中指定的所有依赖包。
   Future<String> getDependencies(String projectPath) async {
     final projectDir = Directory(projectPath);
     if (!projectDir.existsSync()) {
@@ -323,6 +361,8 @@ class FlutterService {
   }
 
   /// Flutter pub upgrade - 升级依赖
+  ///
+  /// 将所有依赖包升级到与其版本约束兼容的最新版本。
   Future<String> upgradeDependencies(String projectPath) async {
     final projectDir = Directory(projectPath);
     if (!projectDir.existsSync()) {
@@ -357,6 +397,8 @@ class FlutterService {
   }
 
   /// Flutter pub outdated - 检查过期依赖
+  ///
+  /// 分析所有依赖包，显示可升级的包及其最新版本。
   Future<String> pubOutdated(String projectPath) async {
     final projectDir = Directory(projectPath);
     if (!projectDir.existsSync()) {
@@ -387,6 +429,8 @@ class FlutterService {
   }
 
   /// 释放资源
+  ///
+  /// 停止所有进程，清空所有监听器。
   void dispose() {
     stop();
     _statusListeners.clear();
@@ -394,7 +438,12 @@ class FlutterService {
     _errorListeners.clear();
   }
 
+  // ==================== 构建相关 ====================
+
   /// 构建项目（使用流式输出）
+  ///
+  /// 执行 Flutter 构建命令（如 apk、ipa、macos 等），
+  /// 使用流式输出实时显示构建进度。
   Future<void> build(
     String projectPath,
     BuildConfig config,
@@ -456,6 +505,9 @@ class FlutterService {
   }
 
   /// 停止长时间运行的进程
+  ///
+  /// 强制终止 build 或 watch 等长时间运行的进程。
+  /// 先尝试 SIGTERM，2 秒后如果仍在运行则使用 SIGKILL。
   Future<void> stopLongRunningProcess() async {
     if (_longRunningProcess == null) return;
 
@@ -473,7 +525,9 @@ class FlutterService {
   }
 
   /// 运行 build_runner 命令
-  /// watch 命令会持续运行，需要手动调用 stopLongRunningProcess() 停止
+  ///
+  /// 执行 build_runner 的 build、clean 或 watch 命令。
+  /// watch 命令会持续运行，需要手动调用 stopLongRunningProcess() 停止。
   Future<void> runBuildRunner(
     String projectPath, {
     required BuildRunnerCommand command,
@@ -588,6 +642,8 @@ class FlutterService {
   }
 
   /// 在 Finder 中打开构建产物目录
+  ///
+  /// 使用 macOS 的 open 命令在 Finder 中显示构建输出目录。
   Future<void> openBuildOutput(String projectPath, BuildConfig config) async {
     final outputDir = config.outputDirectory;
     final fullPath = '$projectPath/$outputDir';

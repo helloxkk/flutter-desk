@@ -10,15 +10,19 @@ import 'package:flutter_desk/features/run_control/presentation/views/console_too
 import 'package:flutter_desk/features/log_viewer/presentation/widgets/segmented_filter.dart';
 import 'package:flutter_desk/features/log_viewer/presentation/views/console_content_area.dart';
 
-/// Main Window - Console-style layout
+/// 主窗口 - 控制台风格布局
 ///
-/// Classic three-pane layout: sidebar + toolbar + content area
-/// Inspired by macOS Console.app
+/// 采用 macOS Console.app 的设计风格，经典的三栏布局：
+/// - 左侧边栏：项目和设备管理
+/// - 右侧上部：工具栏（标题、操作按钮、搜索）
+/// - 右侧中部：日志过滤器
+/// - 右侧下部：日志内容显示区域
 class MainWindow extends StatelessWidget {
   const MainWindow({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // 为窗口级别的功能创建独立的 Provider
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ProjectViewModel()..initialize()),
@@ -30,6 +34,11 @@ class MainWindow extends StatelessWidget {
   }
 }
 
+/// 主窗口内容 - 实际渲染的 UI 结构
+///
+/// 使用 Row + Column 的组合实现三栏布局：
+/// - 左侧固定宽度的边栏
+/// - 右侧自适应的内容区域
 class _MainWindowContent extends StatefulWidget {
   const _MainWindowContent();
 
@@ -46,20 +55,20 @@ class _MainWindowContentState extends State<_MainWindowContent> {
       backgroundColor: colors.cardBackground,
       body: Row(
         children: [
-          // Left sidebar - Projects and Devices
+          // 左侧边栏 - 显示项目和设备列表
           const ConsoleSidebar(),
 
-          // Right content area
+          // 右侧内容区域
           Expanded(
             child: Column(
               children: const [
-                // Toolbar with title, actions, and search
+                // 工具栏 - 包含标题、操作按钮和搜索框
                 ConsoleToolbar(),
 
-                // Segmented filter for logs
+                // 分段过滤器 - 用于过滤不同类型的日志
                 SegmentedFilter(),
 
-                // Log content area
+                // 日志内容显示区域
                 Expanded(
                   child: ConsoleContentArea(),
                 ),

@@ -3,23 +3,50 @@ import 'dart:convert';
 import 'package:flutter_desk/shared/models/flutter_device.dart';
 
 /// Flutter 设备检测服务
+///
+/// 负责检测和管理可用的 Flutter 设备（物理设备、模拟器、桌面平台）。
+/// 执行 `flutter devices --machine` 命令并解析 JSON 输出。
 class DeviceService {
   /// 设备列表缓存
   List<FlutterDevice> _devices = [];
 
-  /// 当前设备列表
-  List<FlutterDevice> get devices => List.unmodifiable(_devices);
-
   /// 最后更新时间
   DateTime? _lastUpdated;
 
-  /// 最后更新时间
+  // ==================== 公共属性 ====================
+
+  /// 获取当前设备列表（不可修改）
+  List<FlutterDevice> get devices => List.unmodifiable(_devices);
+
+  /// 获取最后更新时间
   DateTime? get lastUpdated => _lastUpdated;
 
-  /// 是否已缓存
+  /// 是否已有缓存的设备列表
   bool get isCached => _devices.isNotEmpty && _lastUpdated != null;
 
+  /// 是否有可用设备
+  bool get hasAvailableDevices {
+    return _devices.any((device) => device.isAvailable);
+  }
+
+  /// 获取设备数量
+  int get deviceCount => _devices.length;
+
+  /// 获取可用设备数量
+  int get availableDeviceCount =>
+      _devices.where((device) => device.isAvailable).length;
+
+  // ==================== 核心方法 ====================
+
   /// 获取可用的 Flutter 设备列表
+  ///
+  /// 执行 `flutter devices --machine` 命令获取设备列表。
+  /// 支持缓存机制，避免频繁执行命令。
+  ///
+  /// 参数:
+  /// - [forceRefresh]: 是否强制刷新，忽略缓存
+  ///
+  /// 返回可用设备的列表
   Future<List<FlutterDevice>> getDevices({bool forceRefresh = false}) async {
     // 如果有缓存且未强制刷新，则返回缓存
     if (isCached && !forceRefresh) {
@@ -49,7 +76,7 @@ class DeviceService {
 
       final jsonData = jsonDecode(jsonString) as List;
 
-      // 转换为设备模型
+      // 转换为设备模型，过滤不可用的设备
       _devices = jsonData
           .map((item) => FlutterDevice.fromFlutterJson(item as Map<String, dynamic>))
           .where((device) => device.isAvailable)
@@ -66,7 +93,12 @@ class DeviceService {
     }
   }
 
+  // ==================== 查询方法 ====================
+
   /// 根据 ID 获取设备
+  ///
+  /// 在当前设备列表中查找指定 ID 的设备。
+  /// 如果未找到，返回 null。
   FlutterDevice? getDeviceById(String id) {
     try {
       return _devices.firstWhere((device) => device.id == id);
@@ -76,6 +108,9 @@ class DeviceService {
   }
 
   /// 获取第一个可用设备
+  ///
+  /// 返回列表中第一个可用的设备。
+  /// 如果没有可用设备，返回第一个设备（可能不可用）。
   FlutterDevice? getFirstAvailableDevice() {
     if (_devices.isEmpty) {
       return null;
@@ -87,6 +122,9 @@ class DeviceService {
   }
 
   /// 获取 macOS 桌面设备
+  ///
+  /// 在当前设备列表中查找 macOS 桌面设备。
+  /// 如果未找到，返回 null。
   FlutterDevice? getMacOSDevice() {
     try {
       return _devices.firstWhere(
@@ -100,35 +138,33 @@ class DeviceService {
   }
 
   /// 获取物理设备列表
+  ///
+  /// 返回所有类型为 physical 的设备。
   List<FlutterDevice> getPhysicalDevices() {
     return _devices.where((device) => device.type == DeviceType.physical).toList();
   }
 
   /// 获取模拟器列表
+  ///
+  /// 返回所有类型为 emulator 的设备。
   List<FlutterDevice> getEmulators() {
     return _devices.where((device) => device.type == DeviceType.emulator).toList();
   }
 
   /// 获取桌面平台列表
+  ///
+  /// 返回所有类型为 desktop 的设备。
   List<FlutterDevice> getDesktopDevices() {
     return _devices.where((device) => device.type == DeviceType.desktop).toList();
   }
 
+  // ==================== 缓存管理 ====================
+
   /// 清空缓存
+  ///
+  /// 清除当前缓存的设备列表和更新时间。
   void clearCache() {
     _devices = [];
     _lastUpdated = null;
   }
-
-  /// 检查是否有可用设备
-  bool get hasAvailableDevices {
-    return _devices.any((device) => device.isAvailable);
-  }
-
-  /// 获取设备数量
-  int get deviceCount => _devices.length;
-
-  /// 获取可用设备数量
-  int get availableDeviceCount =>
-      _devices.where((device) => device.isAvailable).length;
 }

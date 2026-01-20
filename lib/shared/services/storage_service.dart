@@ -7,12 +7,19 @@ import 'package:flutter_desk/shared/models/flutter_device.dart';
 import 'package:flutter_desk/core/utils/constants.dart';
 
 /// 配置存储服务
+///
+/// 使用 SharedPreferences 持久化应用配置数据，
+/// 包括项目列表、最后选择的项目和设备等。
 class StorageService {
+  /// 单例实例
   static StorageService? _instance;
+
+  /// SharedPreferences 存储键
   static const String _keyProjects = 'projects';
   static const String _keyLastProject = 'last_project_path';
   static const String _keyLastDevice = 'last_device_id';
 
+  /// 私有构造函数，实现单例模式
   StorageService._();
 
   /// 获取单例实例
@@ -21,7 +28,11 @@ class StorageService {
     return _instance!;
   }
 
+  // ==================== 项目管理 ====================
+
   /// 保存项目列表
+  ///
+  /// 将项目列表序列化为 JSON 并保存到本地存储。
   Future<void> saveProjects(List<FlutterProject> projects) async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -33,6 +44,9 @@ class StorageService {
   }
 
   /// 加载项目列表
+  ///
+  /// 从本地存储加载项目列表。
+  /// 如果没有保存的数据或加载失败，返回默认项目列表。
   Future<List<FlutterProject>> loadProjects() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -52,6 +66,8 @@ class StorageService {
   }
 
   /// 保存最后选择的项目
+  ///
+  /// 记录用户最后一次选择的项目路径，用于下次启动时恢复。
   Future<void> saveLastProject(FlutterProject project) async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -62,6 +78,9 @@ class StorageService {
   }
 
   /// 加载最后选择的项目
+  ///
+  /// 获取用户上次选择的项目路径。
+  /// 如果没有记录或加载失败，返回 null。
   Future<String?> loadLastProject() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -72,6 +91,8 @@ class StorageService {
   }
 
   /// 保存最后选择的设备
+  ///
+  /// 记录用户最后一次选择的设备 ID，用于下次启动时恢复。
   Future<void> saveLastDevice(FlutterDevice device) async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -82,6 +103,9 @@ class StorageService {
   }
 
   /// 加载最后选择的设备
+  ///
+  /// 获取用户上次选择的设备 ID。
+  /// 如果没有记录或加载失败，返回 null。
   Future<String?> loadLastDevice() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -92,6 +116,8 @@ class StorageService {
   }
 
   /// 清除所有保存的数据
+  ///
+  /// 删除所有持久化的配置数据，恢复到初始状态。
   Future<void> clearAll() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -103,7 +129,11 @@ class StorageService {
     }
   }
 
+  // ==================== 项目验证和信息获取 ====================
+
   /// 验证项目路径是否有效
+  ///
+  /// 检查指定路径是否存在且包含 Flutter 项目标记文件（pubspec.yaml）。
   Future<bool> isValidProjectPath(String path) async {
     try {
       final dir = Directory(path);
@@ -120,6 +150,9 @@ class StorageService {
   }
 
   /// 从项目路径读取项目名称
+  ///
+  /// 解析 pubspec.yaml 文件，提取项目名称。
+  /// 如果文件不存在或解析失败，返回默认名称。
   Future<String> getProjectName(String path) async {
     try {
       final pubspecFile = File('$path${Platform.pathSeparator}pubspec.yaml');
@@ -149,7 +182,12 @@ class StorageService {
     }
   }
 
+  // ==================== 私有方法 ====================
+
   /// 获取默认项目列表
+  ///
+  /// 返回预定义的默认 Flutter 项目列表。
+  /// 用于首次启动或加载失败时的回退方案。
   Future<List<FlutterProject>> _getDefaultProjects() async {
     final defaultPaths = [
       '/Users/kun/CursorProjects/links2-control-mobile',
@@ -172,12 +210,18 @@ class StorageService {
     return projects;
   }
 
+  // ==================== 目录相关 ====================
+
   /// 获取应用文档目录
+  ///
+  /// 返回系统分配给应用的文档目录路径。
   Future<Directory> getAppDocumentsDirectory() async {
     return await getApplicationDocumentsDirectory();
   }
 
   /// 获取应用支持目录
+  ///
+  /// 返回系统分配给应用的支持文件目录路径。
   Future<Directory> getAppSupportDirectory() async {
     return await getApplicationSupportDirectory();
   }
