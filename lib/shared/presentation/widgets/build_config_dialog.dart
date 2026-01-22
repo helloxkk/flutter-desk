@@ -1029,89 +1029,130 @@ class _PlatformLogDialogState extends State<_PlatformLogDialog> {
         children: [
           Icon(
             _getIconForType(widget.platformType),
-            size: 18,
+            size: 16,
             color: colors.textSecondary,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
           Expanded(
             child: Text(
               '${_getLabelForType(widget.platformType)} 构建日志',
-              style: const TextStyle(
-                fontSize: MacOSTheme.fontSizeTitle3,
-                fontWeight: MacOSTheme.weightSemibold,
-                color: MacOSTheme.textPrimary,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: colors.textPrimary,
               ),
             ),
           ),
           if (widget.isBuilding)
             SizedBox(
-              width: 12,
-              height: 12,
+              width: 14,
+              height: 14,
               child: CircularProgressIndicator(
-                strokeWidth: 2,
+                strokeWidth: 1.5,
                 valueColor: AlwaysStoppedAnimation<Color>(MacOSTheme.systemBlue),
               ),
             ),
         ],
       ),
       contentPadding: const EdgeInsets.fromLTRB(
-        MacOSTheme.paddingXL,
-        MacOSTheme.paddingM,
-        MacOSTheme.paddingXL,
-        MacOSTheme.paddingL,
+        16,
+        8,
+        16,
+        8,
       ),
       content: SizedBox(
-        width: 600,
-        height: 400,
+        width: 560,
+        height: 360,
         child: Container(
           decoration: BoxDecoration(
             color: colors.isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF5F5F5),
-            borderRadius: BorderRadius.circular(MacOSTheme.radiusSmall),
+            borderRadius: BorderRadius.circular(6),
             border: Border.all(
-              color: colors.border,
-              width: 0.5,
+              color: colors.isDark
+                  ? colors.border
+                  : const Color(0xFFD1D1D1),
+              width: 1,
             ),
           ),
-          padding: const EdgeInsets.all(MacOSTheme.paddingS),
-          child: widget.logs.isEmpty
-              ? Center(
-                  child: Text(
-                    widget.isBuilding ? '等待构建开始...' : '暂无日志',
-                    style: TextStyle(
-                      fontFamily: 'Menlo',
-                      fontSize: MacOSTheme.fontSizeCaption2,
-                      color: colors.textSecondary,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(5),
+            child: widget.logs.isEmpty
+                ? Center(
+                    child: Text(
+                      widget.isBuilding ? '等待构建开始...' : '暂无日志',
+                      style: TextStyle(
+                        fontFamily: 'Menlo',
+                        fontSize: 12,
+                        color: colors.textSecondary,
+                      ),
                     ),
+                  )
+                : ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.all(10),
+                    itemCount: widget.logs.length,
+                    itemBuilder: (context, index) {
+                      return LogLine(log: widget.logs[index]);
+                    },
                   ),
-                )
-              : ListView.builder(
-                  controller: _scrollController,
-                  itemCount: widget.logs.length,
-                  itemBuilder: (context, index) {
-                    return LogLine(log: widget.logs[index]);
-                  },
-                ),
+          ),
         ),
       ),
       actions: [
         TextButton(
           onPressed: widget.logs.isEmpty ? null : _copySelectedLog,
-          child: const Text('复制最新'),
+          style: TextButton.styleFrom(
+            foregroundColor: MacOSTheme.systemBlue,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            minimumSize: const Size(0, 28),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          child: const Text(
+            '复制最新',
+            style: TextStyle(fontSize: 13),
+          ),
         ),
         TextButton(
           onPressed: widget.logs.isEmpty ? null : _copyAllLogs,
-          child: const Text('全部复制'),
+          style: TextButton.styleFrom(
+            foregroundColor: MacOSTheme.systemBlue,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            minimumSize: const Size(0, 28),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          child: const Text(
+            '全部复制',
+            style: TextStyle(fontSize: 13),
+          ),
         ),
-        TextButton(
+        const SizedBox(width: 4),
+        ElevatedButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('关闭'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: MacOSTheme.systemBlue,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            minimumSize: const Size(60, 32),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4),
+            ),
+            elevation: 0,
+          ),
+          child: const Text(
+            '关闭',
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+          ),
         ),
       ],
       actionsPadding: const EdgeInsets.fromLTRB(
-        MacOSTheme.paddingXL,
-        MacOSTheme.paddingM,
-        MacOSTheme.paddingXL,
-        MacOSTheme.paddingL,
+        16,
+        12,
+        16,
+        12,
       ),
     );
   }
