@@ -2,6 +2,9 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'command_state.g.dart';
 
+/// 最大日志数量限制
+const int _maxLogLines = 1000;
+
 /// Flutter 进程状态
 enum ProcessStatus {
   /// 未启动
@@ -95,10 +98,19 @@ class CommandState {
     );
   }
 
-  /// 添加日志
+  /// 添加日志（限制最大行数以避免内存问题）
   CommandState addLog(String log) {
+    final newLogs = [...logs, log];
+    // 如果超过最大行数，移除最旧的日志
+    if (newLogs.length > _maxLogLines) {
+      final trimmedLogs = newLogs.skip(newLogs.length - _maxLogLines).toList();
+      return copyWith(
+        logs: trimmedLogs,
+        updatedAt: DateTime.now(),
+      );
+    }
     return copyWith(
-      logs: [...logs, log],
+      logs: newLogs,
       updatedAt: DateTime.now(),
     );
   }

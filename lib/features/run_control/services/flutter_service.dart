@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:flutter_desk/core/utils/constants.dart';
 import 'package:flutter_desk/shared/models/build_config.dart';
@@ -29,6 +30,15 @@ class FlutterService {
 
   /// 当前命令执行状态
   CommandState _state = CommandState();
+
+  /// 日志缓冲区，用于批量更新
+  final List<String> _logBuffer = [];
+
+  /// 批量更新的定时器
+  Timer? _batchUpdateTimer;
+
+  /// 批量更新的间隔（毫秒）
+  static const int _batchUpdateInterval = 100;
 
   // ==================== 状态和监听器 ====================
 
@@ -76,6 +86,39 @@ class FlutterService {
     for (final listener in _statusListeners) {
       listener();
     }
+  }
+
+  /// 刷新日志缓冲区（批量更新状态）
+  void _flushLogBuffer() {
+    if (_logBuffer.isEmpty) return;
+
+    // 批量添加所有日志
+    for (final log in _logBuffer) {
+      _state = _state.addLog(log);
+    }
+    _logBuffer.clear();
+
+    // 通知所有监听器
+    for (final listener in _outputListeners) {
+      listener(_logBuffer.isNotEmpty ? _logBuffer.last : '');
+    }
+  }
+
+  /// 启动批量更新定时器
+  void _startBatchUpdateTimer() {
+    _batchUpdateTimer?.cancel();
+    _batchUpdateTimer = Timer.periodic(
+      const Duration(milliseconds: _batchUpdateInterval),
+      (_) => _flushLogBuffer(),
+    );
+  }
+
+  /// 停止批量更新定时器
+  void _stopBatchUpdateTimer() {
+    _batchUpdateTimer?.cancel();
+    _batchUpdateTimer = null;
+    // 刷新剩余日志
+    _flushLogBuffer();
   }
 
   // ==================== 主要命令 ====================
@@ -245,12 +288,12 @@ class FlutterService {
 
   /// 处理标准输出
   ///
-  /// 解析进程输出，逐行添加到日志，并通知所有输出监听器。
+  /// 解析进程输出，逐行添加到日志缓冲区，通过定时器批量更新状态。
   void _handleOutput(String data) {
     // Handle both \n and \r as line separators
     final lines = data.split(RegExp(r'[\r\n]')).where((line) => line.isNotEmpty);
     for (final line in lines) {
-      _updateState(_state.addLog(line));
+      _logBuffer.add(line);
       for (final listener in _outputListeners) {
         listener(line);
       }
@@ -264,7 +307,7 @@ class FlutterService {
     // Handle both \n and \r as line separators
     final lines = data.split(RegExp(r'[\r\n]')).where((line) => line.isNotEmpty);
     for (final line in lines) {
-      _updateState(_state.addLog('[ERROR] $line'));
+      _logBuffer.add('[ERROR] $line');
       for (final listener in _errorListeners) {
         listener(line);
       }
@@ -444,6 +487,8 @@ class FlutterService {
   /// 停止所有进程，清空所有监听器。
   void dispose() {
     stop();
+    stopLongRunningProcess();
+    _stopBatchUpdateTimer();
     _statusListeners.clear();
     _outputListeners.clear();
     _errorListeners.clear();
@@ -471,6 +516,9 @@ class FlutterService {
     }
 
     _updateState(_state.copyWith(status: ProcessStatus.building));
+
+    // 启动批量更新定时器
+    _startBatchUpdateTimer();
 
     try {
       final command = config.buildCommand;
@@ -507,6 +555,9 @@ class FlutterService {
       final exitCode = await _longRunningProcess!.exitCode;
       _longRunningProcess = null;
 
+      // 停止批量更新定时器并刷新剩余日志
+      _stopBatchUpdateTimer();
+
       if (exitCode == 0) {
         _updateState(_state.copyWith(status: ProcessStatus.idle));
       } else {
@@ -518,6 +569,8 @@ class FlutterService {
       }
     } catch (e) {
       _longRunningProcess = null;
+      // 停止批量更新定时器并刷新剩余日志
+      _stopBatchUpdateTimer();
       _updateState(_state.copyWith(
         status: ProcessStatus.error,
         error: e.toString(),
@@ -598,6 +651,9 @@ class FlutterService {
           environment: {'CLI_TOOL': 'FlutterDesk'},
         );
 
+        // watch 模式也需要批量更新
+        _startBatchUpdateTimer();
+
         // 监听标准输出
         _longRunningProcess!.stdout.transform(utf8.decoder).listen((data) {
           _handleOutput(data);
@@ -611,6 +667,7 @@ class FlutterService {
         // 监听进程退出
         _longRunningProcess!.exitCode.then((exitCode) {
           _longRunningProcess = null;
+          _stopBatchUpdateTimer();
           if (exitCode == 0) {
             _updateState(_state.copyWith(status: ProcessStatus.idle));
           } else {
@@ -630,6 +687,9 @@ class FlutterService {
           environment: {'CLI_TOOL': 'FlutterDesk'},
         );
 
+        // 启动批量更新定时器
+        _startBatchUpdateTimer();
+
         // 监听标准输出
         _longRunningProcess!.stdout.transform(utf8.decoder).listen((data) {
           _handleOutput(data);
@@ -640,18 +700,22 @@ class FlutterService {
           _handleError(data);
         });
 
-        // 监听进程退出
-        _longRunningProcess!.exitCode.then((exitCode) {
-          _longRunningProcess = null;
-          if (exitCode == 0) {
-            _updateState(_state.copyWith(status: ProcessStatus.idle));
-          } else {
-            _updateState(_state.copyWith(
-              status: ProcessStatus.error,
-              error: 'build_runner 失败，退出码: $exitCode',
-            ));
-          }
-        });
+        // 等待进程退出
+        final exitCode = await _longRunningProcess!.exitCode;
+        _longRunningProcess = null;
+
+        // 停止批量更新定时器并刷新剩余日志
+        _stopBatchUpdateTimer();
+
+        if (exitCode == 0) {
+          _updateState(_state.copyWith(status: ProcessStatus.idle));
+        } else {
+          _updateState(_state.copyWith(
+            status: ProcessStatus.error,
+            error: 'build_runner 失败，退出码: $exitCode',
+          ));
+          throw Exception('build_runner 失败，退出码: $exitCode');
+        }
       }
     } catch (e) {
       _longRunningProcess = null;

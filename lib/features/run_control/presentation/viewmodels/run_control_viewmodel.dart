@@ -46,6 +46,12 @@ class CommandViewModel extends ChangeNotifier {
   /// 上次代码生成状态
   QuickActionStatus _lastCodeGenStatus = QuickActionStatus.none;
 
+  /// 缓存的过滤后日志
+  List<String> _cachedFilteredLogs = [];
+
+  /// 缓存是否有效
+  bool _isCacheValid = false;
+
   /// 当前状态
   CommandState get state => _state;
 
@@ -73,11 +79,16 @@ class CommandViewModel extends ChangeNotifier {
   /// 更新状态并通知监听器（内部辅助方法，减少重复代码）
   void _updateState(CommandState newState) {
     _state = newState;
+    _isCacheValid = false; // 状态变化时缓存失效
     notifyListeners();
   }
 
-  /// 过滤后的日志列表
+  /// 过滤后的日志列表（带缓存）
   List<String> get filteredLogs {
+    if (_isCacheValid) {
+      return List.unmodifiable(_cachedFilteredLogs);
+    }
+
     var filtered = _state.logs;
 
     // 应用类型过滤
@@ -128,6 +139,9 @@ class CommandViewModel extends ChangeNotifier {
       filtered = filtered.where((log) => log.toLowerCase().contains(keyword)).toList();
     }
 
+    _cachedFilteredLogs = filtered;
+    _isCacheValid = true;
+
     return List.unmodifiable(filtered);
   }
 
@@ -148,18 +162,21 @@ class CommandViewModel extends ChangeNotifier {
     // 监听 Flutter 服务状态变化
     _flutterService.addStatusListener(() {
       _state = _flutterService.state;
+      _isCacheValid = false; // 状态变化时缓存失效
       notifyListeners();
     });
 
     // 监听输出
     _flutterService.addOutputListener((line) {
       _state = _state.addLog(line);
+      _isCacheValid = false; // 日志变化时缓存失效
       notifyListeners();
     });
 
     // 监听错误
     _flutterService.addErrorListener((line) {
       _state = _state.addLog('[ERROR] $line');
+      _isCacheValid = false; // 日志变化时缓存失效
       notifyListeners();
     });
   }
@@ -167,12 +184,14 @@ class CommandViewModel extends ChangeNotifier {
   /// 设置日志过滤器
   void setLogFilter(LogFilter filter) {
     _logFilter = filter;
+    _isCacheValid = false; // 过滤器变化时缓存失效
     notifyListeners();
   }
 
   /// 设置搜索关键字
   void setSearchKeyword(String keyword) {
     _searchKeyword = keyword;
+    _isCacheValid = false; // 搜索关键字变化时缓存失效
     notifyListeners();
   }
 
@@ -180,6 +199,7 @@ class CommandViewModel extends ChangeNotifier {
   void clearFilters() {
     _logFilter = LogFilter.all;
     _searchKeyword = '';
+    _isCacheValid = false;
     notifyListeners();
   }
 
@@ -194,6 +214,7 @@ class CommandViewModel extends ChangeNotifier {
     try {
       await _flutterService.run(project, device);
       _state = _flutterService.state;
+      _isCacheValid = false;
       notifyListeners();
     } catch (e) {
       _updateState(_state.copyWith(
@@ -218,6 +239,7 @@ class CommandViewModel extends ChangeNotifier {
     try {
       await _flutterService.hotReload();
       _state = _flutterService.state;
+      _isCacheValid = false;
       notifyListeners();
     } catch (e) {
       _updateState(_state.copyWith(
@@ -238,6 +260,7 @@ class CommandViewModel extends ChangeNotifier {
     try {
       await _flutterService.hotRestart();
       _state = _flutterService.state;
+      _isCacheValid = false;
       notifyListeners();
     } catch (e) {
       _updateState(_state.copyWith(
@@ -251,6 +274,7 @@ class CommandViewModel extends ChangeNotifier {
     try {
       await _flutterService.stop();
       _state = _flutterService.state;
+      _isCacheValid = false;
       notifyListeners();
     } catch (e) {
       _updateState(_state.copyWith(
@@ -277,6 +301,7 @@ class CommandViewModel extends ChangeNotifier {
     try {
       final output = await _flutterService.cleanProject(projectPath);
       _state = _flutterService.state;
+      _isCacheValid = false;
       // 将命令输出添加到日志
       final lines = output.split('\n').where((line) => line.isNotEmpty);
       for (final line in lines) {
@@ -296,6 +321,7 @@ class CommandViewModel extends ChangeNotifier {
     try {
       final output = await _flutterService.getDependencies(projectPath);
       _state = _flutterService.state;
+      _isCacheValid = false;
       final lines = output.split('\n').where((line) => line.isNotEmpty);
       for (final line in lines) {
         _state = _state.addLog(line);
@@ -314,6 +340,7 @@ class CommandViewModel extends ChangeNotifier {
     try {
       final output = await _flutterService.upgradeDependencies(projectPath);
       _state = _flutterService.state;
+      _isCacheValid = false;
       final lines = output.split('\n').where((line) => line.isNotEmpty);
       for (final line in lines) {
         _state = _state.addLog(line);
@@ -332,6 +359,7 @@ class CommandViewModel extends ChangeNotifier {
     try {
       final output = await _flutterService.pubOutdated(projectPath);
       _state = _flutterService.state;
+      _isCacheValid = false;
       final lines = output.split('\n').where((line) => line.isNotEmpty);
       for (final line in lines) {
         _state = _state.addLog(line);
