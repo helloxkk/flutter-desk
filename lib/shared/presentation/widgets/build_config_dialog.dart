@@ -81,9 +81,10 @@ class BuildConfigDialog extends StatefulWidget {
 
 class _BuildConfigDialogState extends State<BuildConfigDialog> {
   // Multi-platform selection
-  final Set<BuildType> _selectedTypes = {BuildType.macos};
+  final Set<BuildType> _selectedTypes = {};
   bool _isRelease = true;
   final TextEditingController _extraArgsController = TextEditingController();
+  bool _showExtraArgs = false;
 
   _DialogBuildStatus _overallBuildStatus = _DialogBuildStatus.notStarted;
   final Map<BuildType, _PlatformBuildStatus> _platformStatus = {};
@@ -319,22 +320,22 @@ class _BuildConfigDialogState extends State<BuildConfigDialog> {
     final colors = MacOSTheme.of(context);
 
     return AlertDialog(
-      title: const Text(
+      title: Text(
         '构建配置',
         style: TextStyle(
-          fontSize: MacOSTheme.fontSizeTitle3,
-          fontWeight: MacOSTheme.weightSemibold,
-          color: MacOSTheme.textPrimary,
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+          color: colors.textPrimary,
         ),
       ),
       contentPadding: const EdgeInsets.fromLTRB(
-        MacOSTheme.paddingXL,
-        MacOSTheme.paddingM,
-        MacOSTheme.paddingXL,
-        MacOSTheme.paddingL,
+        16,
+        8,
+        16,
+        8,
       ),
       content: SizedBox(
-        width: 500,
+        width: 480,
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -342,176 +343,167 @@ class _BuildConfigDialogState extends State<BuildConfigDialog> {
             children: [
               // Platform selection
               Text(
-                '平台 (可多选)',
+                '平台',
                 style: TextStyle(
-                  fontSize: MacOSTheme.fontSizeCaption2,
+                  fontSize: 11,
                   fontWeight: MacOSTheme.weightMedium,
                   color: colors.textSecondary,
                 ),
               ),
-              const SizedBox(height: MacOSTheme.paddingS),
-              Container(
-                padding: const EdgeInsets.all(MacOSTheme.paddingS),
-                decoration: BoxDecoration(
-                  color: colors.secondaryBackground,
-                  borderRadius: BorderRadius.circular(MacOSTheme.radiusSmall),
-                  border: Border.all(
-                    color: colors.border,
-                    width: 0.5,
+              const SizedBox(height: 6),
+              AbsorbPointer(
+                absorbing: _isBuilding,
+                child: Opacity(
+                  opacity: _isBuilding ? 0.5 : 1.0,
+                  child: Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: BuildType.values.map((type) {
+                      return _PlatformChip(
+                        type: type,
+                        isSelected: _selectedTypes.contains(type),
+                        status: _platformStatus[type],
+                        onTap: _isBuilding
+                            ? null
+                            : () {
+                                setState(() {
+                                  if (_selectedTypes.contains(type)) {
+                                    _selectedTypes.remove(type);
+                                  } else {
+                                    _selectedTypes.add(type);
+                                  }
+                                });
+                              },
+                      );
+                    }).toList(),
                   ),
                 ),
-                child: Wrap(
-                  spacing: MacOSTheme.paddingS,
-                  runSpacing: MacOSTheme.paddingS,
-                  children: BuildType.values.map((type) {
-                    return _PlatformChip(
-                      type: type,
-                      isSelected: _selectedTypes.contains(type),
-                      status: _platformStatus[type],
-                      onTap: _isBuilding
-                          ? null
-                          : () {
-                              setState(() {
-                                if (_selectedTypes.contains(type)) {
-                                  _selectedTypes.remove(type);
-                                } else {
-                                  _selectedTypes.add(type);
-                                }
-                              });
-                            },
-                    );
-                  }).toList(),
-                ),
               ),
-              const SizedBox(height: MacOSTheme.paddingL),
+              const SizedBox(height: 16),
 
               // Build mode
               Text(
                 '构建模式',
                 style: TextStyle(
-                  fontSize: MacOSTheme.fontSizeCaption2,
+                  fontSize: 11,
                   fontWeight: MacOSTheme.weightMedium,
                   color: colors.textSecondary,
                 ),
               ),
-              const SizedBox(height: MacOSTheme.paddingS),
+              const SizedBox(height: 6),
               AbsorbPointer(
                 absorbing: _isBuilding,
                 child: Opacity(
                   opacity: _isBuilding ? 0.5 : 1.0,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: colors.secondaryBackground,
-                      borderRadius: BorderRadius.circular(MacOSTheme.radiusSmall),
-                      border: Border.all(
-                        color: colors.border,
-                        width: 0.5,
-                      ),
-                    ),
-                    child: SegmentedButton<bool>(
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStateProperty.resolveWith((states) {
-                          if (states.contains(WidgetState.selected)) {
-                            return MacOSTheme.systemBlue;
-                          }
-                          return Colors.transparent;
-                        }),
-                        foregroundColor: WidgetStateProperty.resolveWith((states) {
-                          if (states.contains(WidgetState.selected)) {
-                            return Colors.white;
-                          }
-                          return colors.textPrimary;
-                        }),
-                        padding: WidgetStateProperty.all(
-                          const EdgeInsets.symmetric(
-                            horizontal: MacOSTheme.paddingL,
-                            vertical: MacOSTheme.paddingM,
+                  child: _MacOSSegmentedControl(
+                    selected: _isRelease,
+                    onChanged: _isBuilding
+                        ? null
+                        : (value) {
+                            setState(() => _isRelease = value);
+                          },
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Extra args checkbox
+              AbsorbPointer(
+                absorbing: _isBuilding,
+                child: Opacity(
+                  opacity: _isBuilding ? 0.5 : 1.0,
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() => _showExtraArgs = !_showExtraArgs);
+                    },
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: Checkbox(
+                            value: _showExtraArgs,
+                            onChanged: _isBuilding
+                                ? null
+                                : (value) {
+                                    setState(() => _showExtraArgs = value ?? false);
+                                  },
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            visualDensity: VisualDensity.compact,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                            side: BorderSide(
+                              color: colors.border,
+                              width: 1,
+                            ),
                           ),
                         ),
-                        shape: WidgetStateProperty.all(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(MacOSTheme.radiusSmall),
+                        const SizedBox(width: 6),
+                        Text(
+                          '额外参数',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
+                            color: colors.textPrimary,
                           ),
-                        ),
-                      ),
-                      selected: {_isRelease},
-                      onSelectionChanged: _isBuilding
-                          ? null
-                          : (Set<bool> newSelection) {
-                              setState(() => _isRelease = newSelection.first);
-                            },
-                      segments: const [
-                        ButtonSegment(
-                          value: false,
-                          label: Text('Debug'),
-                        ),
-                        ButtonSegment(
-                          value: true,
-                          label: Text('Release'),
                         ),
                       ],
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: MacOSTheme.paddingL),
 
-              // Extra args
-              Text(
-                '额外参数',
-                style: TextStyle(
-                  fontSize: MacOSTheme.fontSizeCaption2,
-                  fontWeight: MacOSTheme.weightMedium,
-                  color: colors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: MacOSTheme.paddingS),
-              TextField(
-                controller: _extraArgsController,
-                enabled: !_isBuilding,
-                decoration: InputDecoration(
-                  hintText: '例如: --no-pub',
-                  hintStyle: TextStyle(
-                    fontSize: MacOSTheme.fontSizeFootnote,
-                    color: colors.textSecondary,
-                  ),
-                  filled: true,
-                  fillColor: colors.inputBackground,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(MacOSTheme.radiusSmall),
-                    borderSide: BorderSide.none,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(MacOSTheme.radiusSmall),
-                    borderSide: BorderSide(
-                      color: colors.border,
-                      width: 0.5,
+              // Extra args input field (conditional)
+              if (_showExtraArgs) ...[
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _extraArgsController,
+                  enabled: !_isBuilding,
+                  decoration: InputDecoration(
+                    hintText: '例如: --no-pub',
+                    hintStyle: TextStyle(
+                      fontSize: 13,
+                      color: colors.textSecondary,
+                    ),
+                    filled: true,
+                    fillColor: colors.inputBackground,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(4),
+                      borderSide: BorderSide.none,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(4),
+                      borderSide: BorderSide(
+                        color: colors.border,
+                        width: 0.5,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(4),
+                      borderSide: const BorderSide(
+                        color: MacOSTheme.systemBlue,
+                        width: 1,
+                      ),
+                    ),
+                    disabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(4),
+                      borderSide: BorderSide(
+                        color: colors.border,
+                        width: 0.5,
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
                     ),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(MacOSTheme.radiusSmall),
-                    borderSide: const BorderSide(
-                      color: MacOSTheme.systemBlue,
-                      width: 1.5,
-                    ),
-                  ),
-                  disabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(MacOSTheme.radiusSmall),
-                    borderSide: BorderSide(
-                      color: colors.border,
-                      width: 0.5,
-                    ),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: MacOSTheme.paddingM,
-                    vertical: MacOSTheme.paddingS + 2,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: colors.textPrimary,
                   ),
                 ),
-                style: TextStyle(
-                  fontSize: MacOSTheme.fontSizeFootnote,
-                  color: colors.textPrimary,
-                ),
-              ),
+              ],
 
               // Platform build status and progress
               if (_platformStatus.isNotEmpty) ...[
@@ -541,7 +533,18 @@ class _BuildConfigDialogState extends State<BuildConfigDialog> {
       actions: [
         TextButton(
           onPressed: _isBuilding ? null : () => Navigator.of(context).pop(),
-          child: const Text('取消'),
+          style: TextButton.styleFrom(
+            foregroundColor: MacOSTheme.systemBlue,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            minimumSize: const Size(70, 32),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          child: const Text(
+            '取消',
+            style: TextStyle(fontSize: 13),
+          ),
         ),
         const SizedBox(width: 8),
         ElevatedButton(
@@ -553,24 +556,33 @@ class _BuildConfigDialogState extends State<BuildConfigDialog> {
           style: ElevatedButton.styleFrom(
             backgroundColor: MacOSTheme.systemBlue,
             foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+            minimumSize: const Size(70, 32),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4),
+            ),
+            elevation: 0,
           ),
           child: _isBuilding
               ? const SizedBox(
-                  width: 16,
-                  height: 16,
+                  width: 14,
+                  height: 14,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   ),
                 )
-              : Text(_primaryButtonText),
+              : Text(
+                  _primaryButtonText,
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                ),
         ),
       ],
       actionsPadding: const EdgeInsets.fromLTRB(
-        MacOSTheme.paddingXL,
-        MacOSTheme.paddingM,
-        MacOSTheme.paddingXL,
-        MacOSTheme.paddingL,
+        16,
+        12,
+        16,
+        12,
       ),
     );
   }
@@ -608,24 +620,34 @@ class _PlatformChipState extends State<_PlatformChip> {
 
     if (widget.isSelected) {
       if (widget.status?.status == _DialogBuildStatus.success) {
-        bgColor = MacOSTheme.successGreen.withValues(alpha: 0.2);
+        bgColor = MacOSTheme.successGreen.withValues(alpha: 0.15);
         borderColor = MacOSTheme.successGreen;
         iconColor = MacOSTheme.successGreen;
         textColor = MacOSTheme.successGreen;
       } else if (widget.status?.status == _DialogBuildStatus.failure) {
-        bgColor = MacOSTheme.errorRed.withValues(alpha: 0.2);
+        bgColor = MacOSTheme.errorRed.withValues(alpha: 0.15);
         borderColor = MacOSTheme.errorRed;
         iconColor = MacOSTheme.errorRed;
         textColor = MacOSTheme.errorRed;
       } else {
-        bgColor = MacOSTheme.systemBlue;
+        bgColor = colors.isDark
+            ? MacOSTheme.systemBlue.withValues(alpha: 0.8)
+            : MacOSTheme.systemBlue.withValues(alpha: 0.1);
         borderColor = MacOSTheme.systemBlue;
-        iconColor = Colors.white;
-        textColor = Colors.white;
+        iconColor = MacOSTheme.systemBlue;
+        textColor = MacOSTheme.systemBlue;
       }
     } else {
-      bgColor = _isHovering ? colors.hoverColor : Colors.transparent;
-      borderColor = colors.border;
+      bgColor = _isHovering
+          ? (colors.isDark
+              ? Colors.white.withValues(alpha: 0.08)
+              : Colors.black.withValues(alpha: 0.05))
+          : (colors.isDark
+              ? Colors.white.withValues(alpha: 0.03)
+              : Colors.black.withValues(alpha: 0.02));
+      borderColor = colors.isDark
+          ? Colors.white.withValues(alpha: 0.1)
+          : Colors.black.withValues(alpha: 0.08);
       iconColor = colors.textSecondary;
       textColor = colors.textPrimary;
     }
@@ -636,18 +658,20 @@ class _PlatformChipState extends State<_PlatformChip> {
       child: GestureDetector(
         onTap: widget.onTap,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
+          duration: const Duration(milliseconds: 120),
           curve: Curves.easeOut,
+          height: 26,
+          constraints: const BoxConstraints(minWidth: 70),
           padding: const EdgeInsets.symmetric(
-            horizontal: MacOSTheme.paddingM,
-            vertical: MacOSTheme.paddingS + 2,
+            horizontal: 10,
+            vertical: 5,
           ),
           decoration: BoxDecoration(
             color: bgColor,
-            borderRadius: BorderRadius.circular(MacOSTheme.radiusSmall),
+            borderRadius: BorderRadius.circular(4),
             border: Border.all(
               color: borderColor,
-              width: widget.isSelected ? 1.0 : 0.5,
+              width: 1.0,
             ),
           ),
           child: Row(
@@ -656,19 +680,19 @@ class _PlatformChipState extends State<_PlatformChip> {
               if (widget.status?.status == _DialogBuildStatus.success)
                 Icon(
                   Icons.check_circle,
-                  size: 14,
+                  size: 13,
                   color: MacOSTheme.successGreen,
                 )
               else if (widget.status?.status == _DialogBuildStatus.failure)
                 Icon(
                   Icons.error,
-                  size: 14,
+                  size: 13,
                   color: MacOSTheme.errorRed,
                 )
               else if (widget.status?.status == _DialogBuildStatus.building)
                 SizedBox(
-                  width: 12,
-                  height: 12,
+                  width: 11,
+                  height: 11,
                   child: CircularProgressIndicator(
                     strokeWidth: 1.5,
                     valueColor: AlwaysStoppedAnimation<Color>(MacOSTheme.systemBlue),
@@ -677,16 +701,15 @@ class _PlatformChipState extends State<_PlatformChip> {
               else
                 Icon(
                   _getIconForType(widget.type),
-                  size: 16,
+                  size: 14,
                   color: iconColor,
                 ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 4),
               Text(
                 _getLabelForType(widget.type),
                 style: TextStyle(
-                  fontSize: MacOSTheme.fontSizeFootnote,
-                  fontWeight:
-                      widget.isSelected ? MacOSTheme.weightSemibold : MacOSTheme.weightMedium,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
                   color: textColor,
                 ),
               ),
@@ -695,8 +718,8 @@ class _PlatformChipState extends State<_PlatformChip> {
                 Text(
                   '${(widget.status!.calculateProgress() * 100).toInt()}%',
                   style: TextStyle(
-                    fontSize: MacOSTheme.fontSizeCaption2,
-                    fontWeight: MacOSTheme.weightMedium,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w400,
                     color: colors.textSecondary,
                   ),
                 ),
@@ -1128,5 +1151,168 @@ class _PlatformLogDialogState extends State<_PlatformLogDialog> {
       case BuildType.web:
         return 'Web';
     }
+  }
+}
+
+/// macOS-style segmented control for Debug/Release toggle
+class _MacOSSegmentedControl extends StatefulWidget {
+  final bool selected;
+  final ValueChanged<bool>? onChanged;
+
+  const _MacOSSegmentedControl({
+    required this.selected,
+    required this.onChanged,
+  });
+
+  @override
+  State<_MacOSSegmentedControl> createState() => _MacOSSegmentedControlState();
+}
+
+class _MacOSSegmentedControlState extends State<_MacOSSegmentedControl> {
+  bool _isHoveringDebug = false;
+  bool _isHoveringRelease = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = MacOSTheme.of(context);
+    final isEnabled = widget.onChanged != null;
+
+    return Container(
+      height: 24,
+      decoration: BoxDecoration(
+        color: colors.isDark
+            ? const Color(0xFF3A3A3C)
+            : const Color(0xFFE9E9EB),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      padding: const EdgeInsets.all(2),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Debug segment
+          _SegmentItem(
+            label: 'Debug',
+            isSelected: !widget.selected,
+            isHovering: _isHoveringDebug,
+            isEnabled: isEnabled,
+            onTap: isEnabled
+                ? () {
+                    widget.onChanged!(false);
+                  }
+                : null,
+            onHoverChanged: (value) {
+              if (isEnabled) {
+                setState(() => _isHoveringDebug = value);
+              }
+            },
+          ),
+          // Release segment
+          _SegmentItem(
+            label: 'Release',
+            isSelected: widget.selected,
+            isHovering: _isHoveringRelease,
+            isEnabled: isEnabled,
+            onTap: isEnabled
+                ? () {
+                    widget.onChanged!(true);
+                  }
+                : null,
+            onHoverChanged: (value) {
+              if (isEnabled) {
+                setState(() => _isHoveringRelease = value);
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Individual segment in the macOS segmented control
+class _SegmentItem extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final bool isHovering;
+  final bool isEnabled;
+  final VoidCallback? onTap;
+  final ValueChanged<bool>? onHoverChanged;
+
+  const _SegmentItem({
+    required this.label,
+    required this.isSelected,
+    required this.isHovering,
+    required this.isEnabled,
+    required this.onTap,
+    required this.onHoverChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = MacOSTheme.of(context);
+
+    Color? backgroundColor;
+    if (isSelected) {
+      backgroundColor = Colors.white;
+    } else if (isHovering && isEnabled) {
+      backgroundColor = colors.isDark
+          ? Colors.white.withValues(alpha: 0.08)
+          : Colors.white.withValues(alpha: 0.4);
+    } else {
+      backgroundColor = Colors.transparent;
+    }
+
+    Color textColor;
+    if (isSelected) {
+      textColor = const Color(0xFF0A84FF);
+    } else {
+      textColor = colors.isDark
+          ? const Color(0xFF98989D)
+          : const Color(0xFF1D1D1F);
+    }
+
+    return MouseRegion(
+      onEnter: isEnabled ? (_) => onHoverChanged?.call(true) : null,
+      onExit: isEnabled ? (_) => onHoverChanged?.call(false) : null,
+      cursor: isEnabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+          constraints: const BoxConstraints(
+            minWidth: 56,
+            minHeight: 20,
+          ),
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(4),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: colors.isDark
+                          ? Colors.black.withValues(alpha: 0.3)
+                          : Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 3,
+                      offset: const Offset(0, 1),
+                    ),
+                  ]
+                : null,
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              height: 1.0,
+              letterSpacing: -0.05,
+              color: textColor,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
