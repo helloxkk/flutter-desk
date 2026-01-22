@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目概述
 
-**links2-flutter-manager** 是一个 Flutter Desktop for macOS 应用，为开发者提供快捷的 Flutter 项目管理功能。它作为 VSCode Flutter 扩展的替代方案，特别适合使用 Claude Code 进行开发的场景。
+**FlutterDesk** 是一个 Flutter Desktop for macOS 应用，为开发者提供快捷的 Flutter 项目管理功能。它作为 VSCode Flutter 扩展的替代方案，特别适合使用 Claude Code 进行开发的场景。
 
 ### 核心功能
 - 快捷操作：运行、热重载、热重启、停止 Flutter 项目
@@ -42,13 +42,13 @@ dart format .
 
 ### 应用位置
 
-- **Debug**: `build/macos/Build/Products/Debug/links2_flutter_manager.app`
-- **Release**: `build/macos/Build/Products/Release/links2_flutter_manager.app`
+- **Debug**: `build/macos/Build/Products/Debug/FlutterDesk.app`
+- **Release**: `build/macos/Build/Products/Release/FlutterDesk.app`
 
 ### 直接打开构建的应用
 
 ```bash
-open build/macos/Build/Products/Debug/links2_flutter_manager.app
+open build/macos/Build/Products/Debug/FlutterDesk.app
 ```
 
 ## 架构设计
@@ -246,7 +246,7 @@ flutter pub run build_runner build --delete-conflicting-outputs
 
 ### Flutter 进程环境变量
 
-启动 Flutter 进程时设置了环境变量 `CLI_TOOL=links2-flutter-manager`，可用于日志识别。
+启动 Flutter 进程时设置了环境变量 `CLI_TOOL=FlutterDesk`，可用于日志识别。
 
 ### 窗口配置
 

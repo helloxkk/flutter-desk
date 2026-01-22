@@ -225,4 +225,31 @@ class StorageService {
   Future<Directory> getAppSupportDirectory() async {
     return await getApplicationSupportDirectory();
   }
+
+  // ==================== 通用存储方法 ====================
+
+  /// 保存双精度浮点数
+  ///
+  /// 通用的浮点数存储方法，用于保存配置值。
+  Future<void> setDouble(String key, double value) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setDouble(key, value);
+    } catch (e) {
+      // Silently fail
+    }
+  }
+
+  /// 获取双精度浮点数
+  ///
+  /// 通用的浮点数读取方法，用于获取配置值。
+  /// 如果没有记录或加载失败，返回 null。
+  Future<double?> getDouble(String key) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getDouble(key);
+    } catch (e) {
+      return null;
+    }
+  }
 }

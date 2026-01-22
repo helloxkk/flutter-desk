@@ -8,6 +8,9 @@ export 'models/build_config.dart';
 export 'models/flutter_project.dart';
 export 'models/flutter_device.dart';
 
+// ViewModels
+export 'presentation/viewmodels/sidebar_viewmodel.dart';
+
 // Services
 export 'services/storage_service.dart';
 export 'services/tray_service.dart';

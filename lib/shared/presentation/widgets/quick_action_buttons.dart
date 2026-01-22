@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_desk/core/theme/macos_theme.dart';
+import 'package:flutter_desk/core/utils/app_icons.dart';
 import 'package:flutter_desk/shared/models/build_config.dart';
 import 'package:flutter_desk/shared/models/command_state.dart';
 import 'package:flutter_desk/core/utils/constants.dart';

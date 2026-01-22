@@ -688,6 +688,9 @@ class MacOSColors {
   Color get borderLight => MacOSTheme.borderLight;
   Color get borderDark => MacOSTheme.borderDark;
 
+  // Divider color
+  Color get divider => isDark ? MacOSTheme.borderDark : MacOSTheme.borderLight;
+
   // Button backgrounds
   Color get buttonBackground => isDark ? const Color(0xFF2C2C2E) : Colors.white;
 

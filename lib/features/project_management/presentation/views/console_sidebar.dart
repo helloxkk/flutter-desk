@@ -65,6 +65,7 @@ class ConsoleSidebar extends StatelessWidget {
               title: '项目',
               child: const _ProjectsSection(),
               onAddAction: () => showAddProjectDialog(context),
+              actionWidget: _AddButton(),
             ),
           ),
 
@@ -75,7 +76,7 @@ class ConsoleSidebar extends StatelessWidget {
             child: _SidebarSection(
               title: '设备',
               onAddAction: () => _refreshDevices(context),
-              actionIcon: Icons.refresh_rounded,
+              actionWidget: _RefreshButton(),
               child: const _DevicesSection(),
             ),
           ),
@@ -89,13 +90,13 @@ class ConsoleSidebar extends StatelessWidget {
 class _SidebarSection extends StatelessWidget {
   final String title;
   final VoidCallback? onAddAction;
-  final IconData? actionIcon;
+  final Widget? actionWidget;
   final Widget child;
 
   const _SidebarSection({
     required this.title,
     this.onAddAction,
-    this.actionIcon,
+    this.actionWidget,
     required this.child,
   });
 
@@ -128,13 +129,7 @@ class _SidebarSection extends StatelessWidget {
                     onTap: onAddAction,
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      child: actionIcon != null
-                          ? Icon(
-                              actionIcon,
-                              size: 14,
-                              color: MacOSTheme.systemBlue,
-                            )
-                          : const SizedBox(),
+                      child: actionWidget ?? const SizedBox(),
                     ),
                   ),
                 ),
@@ -236,6 +231,30 @@ class _DevicesSection extends StatelessWidget {
           },
         );
       },
+    );
+  }
+}
+
+/// Refresh button with icon
+class _RefreshButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Icon(
+      Icons.refresh_rounded,
+      size: 14,
+      color: MacOSTheme.systemBlue,
+    );
+  }
+}
+
+/// Add button with icon
+class _AddButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Icon(
+      Icons.add_rounded,
+      size: 16,
+      color: MacOSTheme.systemBlue,
     );
   }
 }

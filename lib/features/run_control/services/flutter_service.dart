@@ -114,7 +114,7 @@ class FlutterService {
         workingDirectory: project.path,
         mode: ProcessStartMode.normal,
         environment: {
-          'CLI_TOOL': 'links2-flutter-manager',
+          'CLI_TOOL': 'FlutterDesk',
         },
       );
 
@@ -247,7 +247,8 @@ class FlutterService {
   ///
   /// 解析进程输出，逐行添加到日志，并通知所有输出监听器。
   void _handleOutput(String data) {
-    final lines = data.split('\n').where((line) => line.isNotEmpty);
+    // Handle both \n and \r as line separators
+    final lines = data.split(RegExp(r'[\r\n]')).where((line) => line.isNotEmpty);
     for (final line in lines) {
       _updateState(_state.addLog(line));
       for (final listener in _outputListeners) {
@@ -260,7 +261,8 @@ class FlutterService {
   ///
   /// 解析错误输出，添加 [ERROR] 前缀，并通知所有错误监听器。
   void _handleError(String data) {
-    final lines = data.split('\n').where((line) => line.isNotEmpty);
+    // Handle both \n and \r as line separators
+    final lines = data.split(RegExp(r'[\r\n]')).where((line) => line.isNotEmpty);
     for (final line in lines) {
       _updateState(_state.addLog('[ERROR] $line'));
       for (final listener in _errorListeners) {
@@ -313,7 +315,7 @@ class FlutterService {
         'flutter',
         ['clean'],
         workingDirectory: projectPath,
-        environment: {'CLI_TOOL': 'links2-flutter-manager'},
+        environment: {'CLI_TOOL': 'FlutterDesk'},
       );
 
       final output = result.stdout as String;
@@ -349,7 +351,7 @@ class FlutterService {
         'flutter',
         ['pub', 'get'],
         workingDirectory: projectPath,
-        environment: {'CLI_TOOL': 'links2-flutter-manager'},
+        environment: {'CLI_TOOL': 'FlutterDesk'},
       );
 
       final output = result.stdout as String;
@@ -385,7 +387,7 @@ class FlutterService {
         'flutter',
         ['pub', 'upgrade'],
         workingDirectory: projectPath,
-        environment: {'CLI_TOOL': 'links2-flutter-manager'},
+        environment: {'CLI_TOOL': 'FlutterDesk'},
       );
 
       final output = result.stdout as String;
@@ -421,7 +423,7 @@ class FlutterService {
         'flutter',
         ['pub', 'outdated'],
         workingDirectory: projectPath,
-        environment: {'CLI_TOOL': 'links2-flutter-manager'},
+        environment: {'CLI_TOOL': 'FlutterDesk'},
       );
 
       final output = result.stdout as String;
@@ -453,6 +455,7 @@ class FlutterService {
   ///
   /// 执行 Flutter 构建命令（如 apk、ipa、macos 等），
   /// 使用流式输出实时显示构建进度。
+  /// 等待构建进程完成后返回。
   Future<void> build(
     String projectPath,
     BuildConfig config,
@@ -471,14 +474,23 @@ class FlutterService {
 
     try {
       final command = config.buildCommand;
+      // 添加 -v 标志以获取详细输出
+      final verboseCommand = [...command, '-v'];
 
       // 使用 Process.start 实现流式输出
       _longRunningProcess = await Process.start(
         'flutter',
-        command,
+        verboseCommand,
         workingDirectory: projectPath,
         mode: ProcessStartMode.normal,
-        environment: {'CLI_TOOL': 'links2-flutter-manager'},
+        environment: {
+          'CLI_TOOL': 'FlutterDesk',
+          // 禁用 Gradle 输出缓冲，确保实时输出
+          'GRADLE_OPTS': '-Dorg.gradle.daemon=false -Dorg.gradle.logging.level=info',
+          // 强制 Python/其他工具不缓冲输出
+          'PYTHONUNBUFFERED': '1',
+          'TERM': 'dumb', // 禁用终端控制码
+        },
       );
 
       // 监听标准输出
@@ -491,18 +503,19 @@ class FlutterService {
         _handleError(data);
       });
 
-      // 监听进程退出
-      _longRunningProcess!.exitCode.then((exitCode) {
-        _longRunningProcess = null;
-        if (exitCode == 0) {
-          _updateState(_state.copyWith(status: ProcessStatus.idle));
-        } else {
-          _updateState(_state.copyWith(
-            status: ProcessStatus.error,
-            error: '构建失败，退出码: $exitCode',
-          ));
-        }
-      });
+      // 等待进程退出
+      final exitCode = await _longRunningProcess!.exitCode;
+      _longRunningProcess = null;
+
+      if (exitCode == 0) {
+        _updateState(_state.copyWith(status: ProcessStatus.idle));
+      } else {
+        _updateState(_state.copyWith(
+          status: ProcessStatus.error,
+          error: '构建失败，退出码: $exitCode',
+        ));
+        throw Exception('构建失败，退出码: $exitCode');
+      }
     } catch (e) {
       _longRunningProcess = null;
       _updateState(_state.copyWith(
@@ -582,7 +595,7 @@ class FlutterService {
           args,
           workingDirectory: projectPath,
           mode: ProcessStartMode.normal,
-          environment: {'CLI_TOOL': 'links2-flutter-manager'},
+          environment: {'CLI_TOOL': 'FlutterDesk'},
         );
 
         // 监听标准输出
@@ -614,7 +627,7 @@ class FlutterService {
           args,
           workingDirectory: projectPath,
           mode: ProcessStartMode.normal,
-          environment: {'CLI_TOOL': 'links2-flutter-manager'},
+          environment: {'CLI_TOOL': 'FlutterDesk'},
         );
 
         // 监听标准输出

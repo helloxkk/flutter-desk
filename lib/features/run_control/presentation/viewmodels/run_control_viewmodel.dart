@@ -364,6 +364,7 @@ class CommandViewModel extends ChangeNotifier {
         status: ProcessStatus.error,
         error: e.toString(),
       ));
+      rethrow; // 重新抛出异常，让调用者知道构建失败
     } finally {
       _isExecuting = false;
     }

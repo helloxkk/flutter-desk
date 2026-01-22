@@ -101,10 +101,13 @@ class _MacOSSearchFieldState extends State<MacOSSearchField> {
             fontSize: MacOSTheme.fontSizeCaption2,
             color: colors.textSecondary,
           ),
-          prefixIcon: Icon(
-            Icons.search,
-            size: 14,
-            color: colors.iconColor,
+          prefixIcon: Padding(
+            padding: const EdgeInsets.only(left: 8, right: 4),
+            child: Icon(
+              Icons.search,
+              size: 14,
+              color: colors.iconColor,
+            ),
           ),
           suffixIcon: _controller.text.isNotEmpty
               ? IconButton(
@@ -112,6 +115,7 @@ class _MacOSSearchFieldState extends State<MacOSSearchField> {
                   onPressed: _handleClear,
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
+                  iconSize: 14,
                 )
               : null,
           border: InputBorder.none,

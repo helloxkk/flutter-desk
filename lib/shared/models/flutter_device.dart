@@ -213,6 +213,42 @@ class FlutterDevice {
     return Icons.device_unknown;
   }
 
+  /// 获取设备图标资源路径（用于 Image.asset）
+  String? get iconAssetPath {
+    // iOS 设备
+    if (platform == DevicePlatform.ios) {
+      if (name.toLowerCase().contains('ipad')) {
+        return 'assets/devices/iPad.png';
+      }
+      return 'assets/devices/iphone.png';
+    }
+
+    // Android 设备
+    if (platform == DevicePlatform.android) {
+      return 'assets/devices/android.png';
+    }
+
+    // 桌面平台
+    if (type == DeviceType.desktop) {
+      switch (platform) {
+        case DevicePlatform.macos:
+          return 'assets/devices/Laptop.png';
+        case DevicePlatform.windows:
+        case DevicePlatform.linux:
+          return 'assets/devices/Laptop.png';
+        default:
+          return 'assets/devices/Laptop.png';
+      }
+    }
+
+    // Web
+    if (platform == DevicePlatform.web) {
+      return 'assets/devices/iMac.png';
+    }
+
+    return null;
+  }
+
   @override
   String toString() {
     return 'FlutterDevice(id: $id, name: $name, platform: $platform, type: $type)';

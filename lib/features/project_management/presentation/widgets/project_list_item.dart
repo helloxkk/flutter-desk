@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_desk/core/theme/macos_theme.dart';
+import 'package:flutter_desk/core/utils/app_icons.dart';
 import 'package:flutter_desk/features/project_management/presentation/viewmodels/project_viewmodel.dart';
 import 'package:flutter_desk/shared/models/flutter_project.dart';
 
@@ -56,7 +57,7 @@ class _ProjectListItemState extends State<ProjectListItem> {
           height: 36,
           child: Row(
             children: [
-              const Icon(Icons.delete_outline, size: 16, color: MacOSTheme.errorRed),
+              AppIcons.deleteIcon(size: 16),
               const SizedBox(width: 8),
               Text('移除项目', style: TextStyle(fontSize: 12, color: MacOSTheme.errorRed)),
             ],
@@ -73,7 +74,11 @@ class _ProjectListItemState extends State<ProjectListItem> {
           height: 36,
           child: Row(
             children: [
-              Icon(Icons.folder_open, size: 16, color: colors.textSecondary),
+              AppIcons.iconWidget(
+                AppIcons.folderOpen,
+                size: 16,
+                color: colors.textSecondary,
+              ),
               const SizedBox(width: 8),
               Text('在 Finder 中显示', style: TextStyle(fontSize: 12, color: colors.textSecondary)),
             ],
@@ -152,13 +157,7 @@ class _ProjectListItemState extends State<ProjectListItem> {
           ),
           child: Row(
             children: [
-              Icon(
-                Icons.folder_outlined,
-                size: 14,
-                color: widget.isSelected
-                    ? const Color(0xFF017AFF)
-                    : colors.textSecondary,
-              ),
+              AppIcons.folderIcon(context, isSelected: widget.isSelected),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(

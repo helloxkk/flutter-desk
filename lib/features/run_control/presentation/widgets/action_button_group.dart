@@ -67,7 +67,7 @@ class ActionButtonGroup extends StatelessWidget {
               tooltip: '热重载',
               isEnabled: canOperate,
               color: const Color(0xFFFFCC00), // Yellow
-              onPressed: () => _handleAction(context, onHotReload),
+              onPressed: () => _handleAction(context, onHotReload, 'hotReload'),
             ),
             const SizedBox(width: 2),
             CompactIconButton(
@@ -75,7 +75,7 @@ class ActionButtonGroup extends StatelessWidget {
               tooltip: '热重启',
               isEnabled: canOperate,
               color: const Color(0xFF007AFF), // Blue
-              onPressed: () => _handleAction(context, onHotRestart),
+              onPressed: () => _handleAction(context, onHotRestart, 'hotRestart'),
             ),
             const SizedBox(width: 2),
             CompactIconButton(
@@ -83,7 +83,7 @@ class ActionButtonGroup extends StatelessWidget {
               tooltip: '停止',
               isEnabled: isRunning,
               isDestructive: true, // Red
-              onPressed: () => _handleAction(context, onStop),
+              onPressed: () => _handleAction(context, onStop, 'stop'),
             ),
             const SizedBox(width: 2),
             CompactIconButton(
@@ -119,11 +119,38 @@ class ActionButtonGroup extends StatelessWidget {
     }
   }
 
-  Future<void> _handleAction(BuildContext context, Future<void> Function()? action) async {
+  Future<void> _handleAction(BuildContext context, Future<void> Function()? action, String actionType) async {
+    debugPrint('[ActionButtonGroup] _handleAction called: $actionType, callback is ${action != null ? "provided" : "NULL"}');
     if (action != null) {
       try {
+        debugPrint('[ActionButtonGroup] Executing provided callback for $actionType...');
         await action();
+        debugPrint('[ActionButtonGroup] Callback for $actionType completed');
       } catch (e) {
+        debugPrint('[ActionButtonGroup] Callback error: $e');
+        if (context.mounted) {
+          _showError(context, e.toString());
+        }
+      }
+    } else {
+      debugPrint('[ActionButtonGroup] No callback provided, using default CommandViewModel for $actionType');
+      // Fallback to CommandViewModel if no callback provided
+      final commandVm = context.read<CommandViewModel>();
+      try {
+        switch (actionType) {
+          case 'hotReload':
+            await commandVm.hotReload();
+            break;
+          case 'hotRestart':
+            await commandVm.hotRestart();
+            break;
+          case 'stop':
+            await commandVm.stop();
+            break;
+        }
+        debugPrint('[ActionButtonGroup] Default action for $actionType completed');
+      } catch (e) {
+        debugPrint('[ActionButtonGroup] Default action error for $actionType: $e');
         if (context.mounted) {
           _showError(context, e.toString());
         }

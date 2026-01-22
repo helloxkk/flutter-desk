@@ -103,18 +103,20 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            hasFilter ? Icons.search_off : Icons.terminal_outlined,
-            size: 48,
-            color: colors.textSecondary,
+          Text(
+            '无信息',
+            style: TextStyle(
+              color: colors.textSecondary,
+              fontSize: MacOSTheme.fontSizeBody,
+              fontWeight: MacOSTheme.weightMedium,
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 4),
           Text(
             hasFilter ? '没有匹配的日志' : '暂无日志输出',
             style: TextStyle(
-              color: colors.textSecondary,
-              fontSize: MacOSTheme.fontSizeFootnote,
-              fontFamily: 'Menlo',
+              color: colors.textTertiary,
+              fontSize: MacOSTheme.fontSizeCaption1,
             ),
           ),
         ],

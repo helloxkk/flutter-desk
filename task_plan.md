@@ -1,59 +1,51 @@
-# Task Plan: Integrate BuildPanel and CodeGenPanel into Main Window
+# Task Plan: 优化弹窗 UI 为 macOS 原生风格
 
 ## Goal
-Add build and code generation quick action buttons to the console toolbar, providing a streamlined user experience with dialog-based configuration and quick menu shortcuts.
+将 BuildConfigDialog 和 CodeGenDialog 优化为更符合 macOS 原生对话框风格
+
+## 设计要点
+
+### 标题栏
+- ✅ 移除图标背景框，只保留纯文字标题
+- ✅ 使用 fontSizeTitle3 (20px) + weightSemibold
+
+### 内容区域
+- ✅ 增加留白，使用 contentPadding
+- ✅ 分组标签用灰色小字 (fontSizeCaption2 - 12px)
+- ✅ 平台选择用 Wrap 自动换行
+- ✅ 构建模式用 SegmentedButton
+
+### 按钮区域
+- ✅ 右对齐布局
+- ✅ 主按钮蓝色背景，次按钮无边框
+- ✅ 文字大小 fontSizeFootnote (13px)
+- ✅ 按钮文字简化："构建" 而非 "开始构建"
 
 ## Phases
-- [x] Phase 1: Analyze current codebase structure
-- [x] Phase 2: Create QuickActionButtons component with build and codegen buttons
-- [x] Phase 3: Create BuildConfigDialog for build configuration
-- [x] Phase 4: Create CodeGenDialog for code generation commands
-- [x] Phase 5: Integrate QuickActionButtons into ConsoleToolbar
-- [x] Phase 6: Test and verify all functionality
-
-## Key Questions
-1. Should the buttons show status indicators? Yes - show last result status ✅
-2. Left click vs right click? Left = dialog, Right = quick menu ✅
-3. What quick presets to show? macOS Debug/Release, and common build_runner commands ✅
-
-## Design Decisions
-- **Button style**: Match CompactIconButton design (28x28) ✅
-- **Status indicators**: Corner badge for success/fail ✅
-- **Dialog approach**: Use AlertDialog with form controls ✅
-- **Quick menu**: PopupMenuItem with common presets ✅
-
-## Files Created
-- ✅ `lib/shared/presentation/widgets/quick_action_buttons.dart`
-- ✅ `lib/shared/presentation/widgets/build_config_dialog.dart`
-- ✅ `lib/shared/presentation/widgets/codegen_dialog.dart`
+- [x] Phase 1: 提交当前代码
+- [x] Phase 2: 优化 BuildConfigDialog
+- [x] Phase 3: 优化 CodeGenDialog
+- [x] Phase 4: 测试验证
 
 ## Files Modified
-- ✅ `lib/features/run_control/presentation/views/console_toolbar.dart` - Added QuickActionButtons
-- ✅ `lib/features/run_control/presentation/viewmodels/run_control_viewmodel.dart` - Added status tracking (lastBuildStatus, lastCodeGenStatus)
-- ✅ `lib/core/utils/constants.dart` - Added QuickActionStatus enum
+- lib/shared/presentation/widgets/build_config_dialog.dart
+- lib/shared/presentation/widgets/codegen_dialog.dart
+
+## 主要改动
+
+### BuildConfigDialog
+- 标题：移除图标背景框，纯文字
+- 分组标签：使用 fontSizeCaption2 (12px) + textSecondary 颜色
+- 按钮文字：简化为"构建"（从"开始构建"）
+
+### CodeGenDialog
+- 标题：移除图标背景框，纯文字
+- 命令按钮：卡片化设计，主按钮 hover 带阴影
+- 信息框：浅蓝色背景，fontSizeCaption2 (12px)
 
 ## Status
-**✅ 完成** - Implementation complete, build successful!
+**✅ 完成** - 已按照 macOS 原生风格优化弹窗 UI
 
-### Verification
-- ✅ `flutter analyze` - No issues
-- ✅ `flutter build macos --debug` - Success
-
-## Summary
-
-Added two quick action buttons (Build 🔨 and CodeGen ⚙️) to the console toolbar:
-
-1. **Left click** opens a dialog with full configuration options
-2. **Right click** shows a quick menu with common presets
-3. **Status indicators** show ✓ or ✗ badge in corner based on last operation result
-
-### Build Dialog Features
-- Platform selection (macOS, iOS, Android APK/Bundle, Windows, Linux, Web)
-- Debug/Release mode toggle
-- Extra arguments text field
-- "开始构建" and "打开输出" buttons
-
-### CodeGen Dialog Features
-- Build, Clean, Watch buttons
-- Descriptions for each command
-- Info box explaining build_runner usage
+### 验证结果
+- ✅ `flutter analyze` - 无错误
+- ✅ `flutter build macos --debug` - 成功

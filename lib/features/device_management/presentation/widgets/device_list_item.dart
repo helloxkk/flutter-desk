@@ -32,6 +32,32 @@ class DeviceListItem extends StatefulWidget {
 class _DeviceListItemState extends State<DeviceListItem> {
   bool _isHovering = false;
 
+  Widget _buildDeviceIcon(MacOSColors colors) {
+    final iconAssetPath = widget.device.iconAssetPath;
+
+    // 使用系统图标资源
+    if (iconAssetPath != null) {
+      return Image.asset(
+        iconAssetPath,
+        width: 16,
+        height: 16,
+        color: widget.isSelected
+            ? const Color(0xFF017AFF)
+            : colors.textSecondary,
+        colorBlendMode: BlendMode.srcIn,
+      );
+    }
+
+    // 回退到默认图标
+    return Icon(
+      widget.device.iconData,
+      size: 14,
+      color: widget.isSelected
+          ? const Color(0xFF017AFF)
+          : colors.textSecondary,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = MacOSTheme.of(context);
@@ -54,13 +80,7 @@ class _DeviceListItemState extends State<DeviceListItem> {
           ),
           child: Row(
             children: [
-              Icon(
-                widget.device.iconData,
-                size: 14,
-                color: widget.isSelected
-                    ? const Color(0xFF017AFF)
-                    : colors.textSecondary,
-              ),
+              _buildDeviceIcon(colors),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
